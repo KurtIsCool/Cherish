@@ -10,10 +10,11 @@ import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function Welcome() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [partnerName, setPartnerName] = useState('');
   const [startDate, setStartDate] = useState(null);
@@ -44,6 +45,7 @@ export default function Welcome() {
         start_date: format(startDate, 'yyyy-MM-dd'),
         theme_color: 'warm'
       });
+      await queryClient.invalidateQueries(['partner']);
       navigate(createPageUrl('Home'));
     }
   };
