@@ -1,16 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Calendar } from '@/components/ui/calendar';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { format, isSameDay, parseISO } from 'date-fns';
 import MemoryCard from '@/components/cherish/MemoryCard';
-import { categoryConfig } from '@/components/cherish/CategoryIcon'; // Using the source of truth
+import CategoryIcon, { categoryConfig } from '@/components/cherish/CategoryIcon'; // Using the source of truth
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import QuickLogModal from '@/components/cherish/QuickLogModal';
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [quickLogOpen, setQuickLogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: memories, isLoading } = useQuery({
     queryKey: ['memories'],
@@ -44,8 +49,14 @@ export default function CalendarPage() {
     return memories.filter(m => m.memory_date === dateKey);
   }, [memories, selectedDate]);
 
+  const handleCategorySave = () => {
+    queryClient.invalidateQueries(['memories']);
+  };
+
+  const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50/30 to-slate-50">
+    <div className="min-h-dvh bg-gradient-to-b from-rose-50/30 to-slate-50">
       <div className="max-w-lg mx-auto px-5 py-6 pb-24">
         <div className="mb-6">
           <h1 className="text-2xl font-light text-slate-700 mb-4">Memory Calendar</h1>
@@ -89,14 +100,15 @@ export default function CalendarPage() {
               day_outside: "text-slate-300 opacity-50",
             }}
             components={{
-              DayContent: ({ date, ...props }) => {
+              DayButton: ({ day, ...props }) => {
+                const date = day.date;
                 const dateKey = format(date, 'yyyy-MM-dd');
                 const dayMemories = memoriesByDate[dateKey] || [];
                 const categories = [...new Set(dayMemories.map(m => m.category))];
                 const isSelected = isSameDay(date, selectedDate);
                 
                 return (
-                  <div className="relative flex flex-col items-center justify-center w-full h-full">
+                  <CalendarDayButton day={day} {...props} className={cn(props.className, "relative overflow-visible")}>
                     <span className="z-10 relative">{date.getDate()}</span>
                     {categories.length > 0 && !isSelected && (
                       <div className="absolute -bottom-1 flex gap-0.5">
@@ -116,7 +128,7 @@ export default function CalendarPage() {
                             transition={{ type: "spring", stiffness: 500, damping: 30 }}
                         />
                     )}
-                  </div>
+                  </CalendarDayButton>
                 );
               }
             }}
@@ -151,15 +163,38 @@ export default function CalendarPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-center py-12 text-slate-400"
+                  className="text-center py-8"
                 >
-                  <p>No memories on this day</p>
+                  <p className="text-slate-400 mb-6">No memories on this day</p>
+
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 className="text-sm font-medium text-slate-600 mb-4">Add a memory for this day</h3>
+                    <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
+                        {categories.map((cat) => (
+                        <CategoryIcon
+                            key={cat}
+                            category={cat}
+                            size="md"
+                            onClick={() => setSelectedCategory(cat)}
+                        />
+                        ))}
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
           )}
         </div>
       </div>
+
+       {/* Quick Log Modal */}
+       <QuickLogModal
+        open={!!selectedCategory}
+        onClose={() => setSelectedCategory(null)}
+        category={selectedCategory}
+        onSave={handleCategorySave}
+        defaultDate={selectedDate}
+      />
     </div>
   );
 }
