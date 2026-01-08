@@ -147,79 +147,83 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50/30 to-slate-50">
-      <div className="max-w-lg mx-auto px-5 py-6 pb-24">
-        <div className="mb-6">
-          <h1 className="text-2xl font-light text-slate-700">Settings</h1>
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-md mx-auto px-5 py-8 pb-32">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-800">Settings</h1>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl p-6 shadow-sm mb-6"
+          className="bg-white/60 backdrop-blur-md rounded-[32px] p-8 shadow-sm border border-white/40 mb-8"
         >
-          <h2 className="text-sm font-medium text-slate-500 mb-6">Profile</h2>
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-8">Profile & Preferences</h2>
 
-          <div className="flex justify-center mb-6">
-            <label className="relative cursor-pointer">
+          <div className="flex justify-center mb-8">
+            <label className="relative cursor-pointer group">
               <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
               {photo ? (
-                <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-rose-100">
-                  <img src={photo} alt="" className="w-full h-full object-cover" />
+                <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white shadow-xl">
+                  <img src={photo} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
               ) : (
-                <div className="w-24 h-24 rounded-full bg-rose-50 flex items-center justify-center ring-4 ring-rose-100">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-rose-100 to-orange-50 flex items-center justify-center ring-4 ring-white shadow-xl transition-transform duration-300 group-hover:scale-105">
                   {uploading ? (
-                    <Loader2 className="w-6 h-6 text-rose-400 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-rose-400 animate-spin" />
                   ) : (
-                    <Heart className="w-8 h-8 text-rose-300" />
+                    <Heart className="w-12 h-12 text-rose-300 fill-rose-300/50" />
                   )}
                 </div>
               )}
-              <div className="absolute bottom-0 right-0 w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center">
-                <ImagePlus className="w-4 h-4 text-white" />
+              <div className="absolute bottom-1 right-1 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110 group-active:scale-95">
+                <ImagePlus className="w-5 h-5 text-slate-600" />
               </div>
             </label>
           </div>
 
-          <div className="space-y-2 mb-4">
-            <Label className="text-slate-500 text-sm font-normal">Partner's name</Label>
-            <Input
-              value={partnerName}
-              onChange={(e) => setPartnerName(e.target.value)}
-              className="h-12 rounded-xl border-slate-200"
-            />
-          </div>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-slate-500 text-xs font-bold uppercase tracking-wide ml-1">Partner's name</Label>
+              <Input
+                value={partnerName}
+                onChange={(e) => setPartnerName(e.target.value)}
+                className="h-14 rounded-2xl border-none bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all text-lg font-medium text-slate-700 px-4"
+                placeholder="Name"
+              />
+            </div>
 
-          <div className="space-y-2 mb-6">
-            <Label className="text-slate-500 text-sm font-normal">Anniversary</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="w-full h-12 rounded-xl border-slate-200 justify-start"
-                >
-                  <CalendarDays className="mr-3 h-4 w-4 text-slate-400" />
-                  {startDate ? format(startDate, 'MMMM d, yyyy') : 'Select date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  disabled={(date) => date > new Date()}
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="space-y-2">
+              <Label className="text-slate-500 text-xs font-bold uppercase tracking-wide ml-1">Anniversary</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full h-14 rounded-2xl border-none bg-slate-50 hover:bg-white hover:ring-2 hover:ring-primary/20 justify-start text-lg font-medium text-slate-700 px-4 transition-all"
+                  >
+                    <CalendarDays className="mr-3 h-5 w-5 text-primary" />
+                    {startDate ? format(startDate, 'MMMM d, yyyy') : 'Select date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 rounded-3xl shadow-xl border-none">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={setStartDate}
+                    disabled={(date) => date > new Date()}
+                    className="rounded-3xl border-none"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
           <Button 
             onClick={handleSave}
             disabled={saving}
-            className="w-full h-12 rounded-xl bg-slate-800 hover:bg-slate-700"
+            className="w-full h-14 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-medium text-lg mt-8 shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 hover:-translate-y-0.5 transition-all"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save Changes'}
+            {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Save Changes'}
           </Button>
         </motion.div>
 

@@ -62,7 +62,7 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-4 shadow-sm mb-6 border border-slate-100">
+        <div className="bg-white/80 backdrop-blur-md rounded-[32px] p-6 shadow-xl shadow-rose-100/50 mb-8 border border-white">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -73,34 +73,48 @@ export default function CalendarPage() {
             classNames={{
               months: "w-full",
               month: "w-full",
+              caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
+              caption_label: "text-lg font-bold text-slate-700",
+              nav: "absolute inset-0 flex items-center justify-between",
+              nav_button: "h-8 w-8 bg-transparent hover:bg-slate-50 p-0 opacity-50 hover:opacity-100 transition-opacity rounded-full flex items-center justify-center",
+              nav_button_previous: "absolute left-1",
+              nav_button_next: "absolute right-1",
               table: "w-full border-collapse",
-              head_row: "flex w-full",
-              head_cell: "text-slate-400 w-full font-normal text-xs",
-              row: "flex w-full mt-1",
+              head_row: "flex w-full mb-4",
+              head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider",
+              row: "flex w-full mt-2",
               cell: "w-full text-center text-sm relative p-0",
-              day: "h-10 w-full rounded-xl font-normal hover:bg-slate-100 transition-colors",
-              day_selected: "bg-slate-800 text-white hover:bg-slate-700",
-              day_today: "bg-rose-50 text-rose-600",
-              day_outside: "text-slate-300",
+              day: "h-10 w-10 mx-auto rounded-full font-medium hover:bg-rose-50 transition-all text-slate-600 data-[selected=true]:bg-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:shadow-primary/30 data-[selected=true]:scale-110 active:scale-95",
+              day_today: "bg-slate-100 text-slate-900 font-bold",
+              day_outside: "text-slate-300 opacity-50",
             }}
             components={{
-              DayContent: ({ date }) => {
+              DayContent: ({ date, ...props }) => {
                 const dateKey = format(date, 'yyyy-MM-dd');
                 const dayMemories = memoriesByDate[dateKey] || [];
                 const categories = [...new Set(dayMemories.map(m => m.category))];
+                const isSelected = isSameDay(date, selectedDate);
                 
                 return (
-                  <div className="relative flex flex-col items-center">
-                    <span>{date.getDate()}</span>
-                    {categories.length > 0 && (
-                      <div className="flex gap-0.5 mt-0.5">
+                  <div className="relative flex flex-col items-center justify-center w-full h-full">
+                    <span className="z-10 relative">{date.getDate()}</span>
+                    {categories.length > 0 && !isSelected && (
+                      <div className="absolute -bottom-1 flex gap-0.5">
                         {categories.slice(0, 3).map((cat, i) => (
                           <div 
                             key={i} 
-                            className={`w-1.5 h-1.5 rounded-full ${categoryConfig[cat]?.dotColor || 'bg-slate-300'}`}
+                            className={`w-1 h-1 rounded-full ${categoryConfig[cat]?.dotColor || 'bg-slate-300'}`}
                           />
                         ))}
                       </div>
+                    )}
+                    {isSelected && (
+                        <motion.div
+                            layoutId="selectedDay"
+                            className="absolute inset-0 bg-primary rounded-full -z-0"
+                            initial={false}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
                     )}
                   </div>
                 );
