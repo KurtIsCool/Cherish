@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,8 +11,8 @@ import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 import { categoryConfig } from './CategoryIcon';
 
-export default function QuickLogModal({ open, onClose, category, onSave }) {
-  const [date, setDate] = useState(new Date());
+export default function QuickLogModal({ open, onClose, category, onSave, defaultDate }) {
+  const [date, setDate] = useState(defaultDate || new Date());
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState(null);
@@ -20,6 +20,12 @@ export default function QuickLogModal({ open, onClose, category, onSave }) {
   const [saving, setSaving] = useState(false);
 
   const config = categoryConfig[category];
+
+  useEffect(() => {
+    if (open) {
+      setDate(defaultDate || new Date());
+    }
+  }, [open, defaultDate]);
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
