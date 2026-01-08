@@ -14,7 +14,11 @@ class LocalEntity {
 
   // Helper to save data
   _saveData(data) {
-    localStorage.setItem(this.storageKey, JSON.stringify(data));
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
+    } catch (error) {
+      console.error('Failed to save data to localStorage:', error);
+    }
   }
 
   async list(sortParam = null) {
@@ -26,8 +30,10 @@ class LocalEntity {
       const isDesc = sortParam.startsWith('-');
       
       items.sort((a, b) => {
-        if (a[field] < b[field]) return isDesc ? 1 : -1;
-        if (a[field] > b[field]) return isDesc ? -1 : 1;
+        const valA = a[field] ?? '';
+        const valB = b[field] ?? '';
+        if (valA < valB) return isDesc ? 1 : -1;
+        if (valA > valB) return isDesc ? -1 : 1;
         return 0;
       });
     }

@@ -120,6 +120,7 @@ export default function Vault() {
                     onUpdate={handleUpdate}
                     label={sectionConfig[tab.id].label}
                     emptyMessage={sectionConfig[tab.id].emptyMessage}
+                    isSearching={!!searchQuery}
                   />
                 </motion.div>
               </TabsContent>

@@ -5,11 +5,11 @@ import Layout from './Layout'; // Ensure this matches your file location
 import { Toaster } from 'sonner';
 
 // Import Pages
-import Home from './pages/Home';
-import Calendar from './pages/Calendar';
-import Vault from './pages/Vault';
-import Settings from './pages/Settings';
-import Welcome from './pages/Welcome';
+import Home from './Pages/Home';
+import Calendar from './Pages/Calendar';
+import Vault from './Pages/Vault';
+import Settings from './Pages/Settings';
+import Welcome from './Pages/Welcome';
 import UserNotRegisteredError from './components/UserNotRegisteredError'; // Verify path
 
 const queryClient = new QueryClient({

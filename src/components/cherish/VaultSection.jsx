@@ -5,7 +5,7 @@ import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function VaultSection({ type, items, onUpdate, label, emptyMessage }) {
+export default function VaultSection({ type, items, onUpdate, label, emptyMessage, isSearching }) {
   const [editing, setEditing] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [adding, setAdding] = useState(false);
@@ -71,7 +71,9 @@ export default function VaultSection({ type, items, onUpdate, label, emptyMessag
         </AnimatePresence>
 
         {filteredItems.length === 0 && !editing && (
-          <p className="text-sm text-slate-400 italic py-4 text-center">{emptyMessage}</p>
+          <p className="text-sm text-slate-400 italic py-4 text-center">
+            {isSearching ? 'No results found' : emptyMessage}
+          </p>
         )}
 
         {editing && (
