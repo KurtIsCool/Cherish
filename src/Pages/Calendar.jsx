@@ -40,9 +40,8 @@ export default function CalendarPage() {
 
   const selectedMemories = useMemo(() => {
     if (!memories) return [];
-    return memories.filter(m => 
-      isSameDay(parseISO(m.memory_date), selectedDate)
-    );
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    return memories.filter(m => m.memory_date === dateKey);
   }, [memories, selectedDate]);
 
   return (
