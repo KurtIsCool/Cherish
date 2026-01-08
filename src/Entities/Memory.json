@@ -1,0 +1,39 @@
+{
+  name Memory,
+  type object,
+  properties {
+    category {
+      type string,
+      enum [
+        dining,
+        gift,
+        date,
+        media,
+        emotion,
+        conflict
+      ],
+      description Type of memory
+    },
+    memory_date {
+      type string,
+      format date,
+      description When this memory occurred
+    },
+    location {
+      type string,
+      description Where it happened
+    },
+    notes {
+      type string,
+      description Details about this memory
+    },
+    photo_url {
+      type string,
+      description Photo associated with this memory
+    }
+  },
+  required [
+    category,
+    memory_date
+  ]
+}

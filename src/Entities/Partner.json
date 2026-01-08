@@ -1,0 +1,37 @@
+{
+  "name": "Partner",
+  "type": "object",
+  "properties": {
+    "partner_name": {
+      "type": "string",
+      "description": "Your partner's name"
+    },
+    "pronouns": {
+      "type": "string",
+      "description": "Partner's pronouns"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Anniversary/start date of relationship"
+    },
+    "theme_color": {
+      "type": "string",
+      "enum": [
+        "warm",
+        "cool",
+        "mono"
+      ],
+      "default": "warm",
+      "description": "App theme preference"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Partner's photo"
+    }
+  },
+  "required": [
+    "partner_name",
+    "start_date"
+  ]
+}
