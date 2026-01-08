@@ -7,7 +7,9 @@ import { differenceInDays, differenceInMonths, addYears } from 'date-fns';
 import TimeTogether from '@/components/cherish/TimeTogether';
 import CategoryIcon from '@/components/cherish/CategoryIcon';
 import InsightCard from '@/components/cherish/InsightCard';
-import MemoryCard from '@/components/cherish/MemoryCard';
+import LivingTimeline from '@/components/cherish/LivingTimeline';
+import ProfileCover from '@/components/cherish/ProfileCover';
+import SparkWidget from '@/components/cherish/SparkWidget';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
@@ -34,6 +36,8 @@ export default function Home() {
       navigate(createPageUrl('Welcome'));
     }
   }, [loadingPartner, partner, navigate]);
+
+  const daysTogether = partner ? differenceInDays(new Date(), new Date(partner.start_date)) : 0;
 
   const getInsight = () => {
     if (!memories?.length || !partner) return null;
@@ -81,8 +85,8 @@ export default function Home() {
 
   if (loadingPartner) {
     return (
-      <div className="min-h-screen bg-slate-50 p-6">
-        <Skeleton className="h-24 w-48 mx-auto mb-8" />
+      <div className="min-h-screen bg-transparent p-6">
+        <Skeleton className="h-64 w-full rounded-3xl mb-8" />
         <div className="flex justify-center gap-4 mb-8">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <Skeleton key={i} className="w-14 h-20 rounded-2xl" />
@@ -97,27 +101,36 @@ export default function Home() {
   const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50/30 to-slate-50">
-      <div className="max-w-lg mx-auto px-5 pb-24">
-        {/* Header */}
-        <TimeTogether startDate={partner.start_date} partnerName={partner.partner_name} />
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-md mx-auto px-5 pb-32 pt-6">
+        {/* Profile Cover Card */}
+        <ProfileCover
+          partnerName={partner.partner_name}
+          startDate={partner.start_date}
+          daysTogether={daysTogether}
+        />
 
-        {/* Quick Actions */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex justify-center gap-3 mb-8 overflow-x-auto py-2"
-        >
-          {categories.map((cat) => (
-            <CategoryIcon
-              key={cat}
-              category={cat}
-              size="md"
-              onClick={() => setSelectedCategory(cat)}
-            />
-          ))}
-        </motion.div>
+        {/* Daily Spark Widget */}
+        <SparkWidget />
+
+        {/* Quick Actions (Floating Bubbles) */}
+        <div className="mb-8">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Log a memory</h3>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-between gap-2 overflow-x-auto pb-4 no-scrollbar"
+          >
+            {categories.map((cat, idx) => (
+              <CategoryIcon
+                key={cat}
+                category={cat}
+                size="md"
+                onClick={() => setSelectedCategory(cat)}
+              />
+            ))}
+          </motion.div>
+        </div>
 
         {/* Insight Card */}
         {insight && (
@@ -125,7 +138,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8"
+            className="mb-10"
           >
             <InsightCard 
               type={insight.type} 
@@ -135,42 +148,25 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Recent Memories */}
+        {/* Living Timeline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-slate-700">Recent Memories</h2>
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-xl font-bold text-slate-800">Latest Moments</h2>
             {memories?.length > 0 && (
               <button 
                 onClick={() => navigate(createPageUrl('Calendar'))}
-                className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+                className="text-sm font-semibold text-primary hover:text-rose-600 transition-colors bg-rose-50 px-3 py-1 rounded-full"
               >
-                View all
+                View Calendar
               </button>
             )}
           </div>
 
-          {loadingMemories ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-24 rounded-2xl" />
-              ))}
-            </div>
-          ) : recentMemories.length > 0 ? (
-            <div className="space-y-3">
-              {recentMemories.map((memory) => (
-                <MemoryCard key={memory.id} memory={memory} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 text-slate-400">
-              <p className="mb-2">No memories yet</p>
-              <p className="text-sm">Tap an icon above to log your first moment</p>
-            </div>
-          )}
+          <LivingTimeline memories={recentMemories} loading={loadingMemories} />
         </motion.div>
       </div>
 
