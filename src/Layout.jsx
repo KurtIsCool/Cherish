@@ -3,10 +3,43 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { Home, Calendar, Archive, Settings, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils'; // FIXED PATH
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function Layout({ children, currentPageName }) {
   const hideNav = currentPageName === 'Welcome';
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (hideNav) return;
+
+    // Check if it's been more than 7 days since last backup
+    const lastBackupStr = localStorage.getItem('last_backup_date');
+    const now = new Date();
+
+    if (!lastBackupStr) {
+      // First time check, set to now so we wait 7 days
+      localStorage.setItem('last_backup_date', now.toISOString());
+    } else {
+      const lastBackup = new Date(lastBackupStr);
+      const diffTime = Math.abs(now - lastBackup);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays > 7) {
+        toast('Time to back up!', {
+          description: "It's been a week since your last memory backup.",
+          action: {
+            label: 'Go to Settings',
+            onClick: () => navigate(createPageUrl('Settings'))
+          },
+          duration: 10000,
+        });
+        // reset the timer so we don't spam them every time they change routes today
+        // We'll give them another week before pestering again if they ignore it
+        localStorage.setItem('last_backup_date', now.toISOString());
+      }
+    }
+  }, [hideNav, navigate]);
 
   const navItems = [
     { name: 'Home', icon: Home, page: 'Home' },

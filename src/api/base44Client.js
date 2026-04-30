@@ -1,28 +1,33 @@
-// src/api/base44Client.js
+import { get, set } from 'idb-keyval';
 
-// A simple wrapper to make LocalStorage look like a database
+// A simple wrapper to make idb-keyval look like a database
 class LocalEntity {
   constructor(storageKey) {
     this.storageKey = storageKey;
   }
 
   // Helper to get data
-  _getData() {
-    const data = localStorage.getItem(this.storageKey);
-    return data ? JSON.parse(data) : [];
+  async _getData() {
+    try {
+      const data = await get(this.storageKey);
+      return data || [];
+    } catch (error) {
+      console.error(`Failed to get data for ${this.storageKey}:`, error);
+      return [];
+    }
   }
 
   // Helper to save data
-  _saveData(data) {
+  async _saveData(data) {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(data));
+      await set(this.storageKey, data);
     } catch (error) {
-      console.error('Failed to save data to localStorage:', error);
+      console.error(`Failed to save data for ${this.storageKey}:`, error);
     }
   }
 
   async list(sortParam = null) {
-    let items = this._getData();
+    let items = await this._getData();
     
     // Simple sorting support
     if (sortParam) {
@@ -42,7 +47,7 @@ class LocalEntity {
   }
 
   async create(data) {
-    const items = this._getData();
+    const items = await this._getData();
     // Add a fake ID and timestamp
     const newItem = { 
       ...data, 
@@ -50,25 +55,25 @@ class LocalEntity {
       created_at: new Date().toISOString() 
     };
     items.unshift(newItem); // Add to top
-    this._saveData(items);
+    await this._saveData(items);
     return newItem;
   }
 
   async update(id, updates) {
-    const items = this._getData();
+    const items = await this._getData();
     const index = items.findIndex(item => item.id === id);
     if (index !== -1) {
       items[index] = { ...items[index], ...updates };
-      this._saveData(items);
+      await this._saveData(items);
       return items[index];
     }
     return null;
   }
 
   async delete(id) {
-    const items = this._getData();
+    const items = await this._getData();
     const filtered = items.filter(item => item.id !== id);
-    this._saveData(filtered);
+    await this._saveData(filtered);
     return true;
   }
 }
