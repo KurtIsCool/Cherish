@@ -12,8 +12,7 @@ import {
   Download, 
   Trash2,
   Heart,
-  ImagePlus,
-  Upload
+  ImagePlus
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -32,13 +31,10 @@ import {
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { useStoragePersistence } from '@/lib/useStoragePersistence';
-import { exportZeroCloudBackup, restoreZeroCloudBackup } from '@/lib/backupUtils';
 
 export default function Settings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isPersistent, isSupported } = useStoragePersistence();
 
   const { data: partners, isLoading } = useQuery({
     queryKey: ['partner'],
@@ -94,49 +90,25 @@ export default function Settings() {
     toast.success('Settings saved');
   };
 
-  const handleExportData = async () => {
-    setSaving(true);
-    const result = await exportZeroCloudBackup();
-    setSaving(false);
+  const handleExportData = () => {
+    const exportData = {
+      partner,
+      memories,
+      vaultItems,
+      exportedAt: new Date().toISOString()
+    };
     
-    if (result.success) {
-      toast.success('Backup exported successfully');
-      localStorage.setItem('last_backup_date', new Date().toISOString());
-    } else {
-      toast.error('Failed to export backup');
-    }
-  };
-
-  const handleImportData = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setSaving(true);
-    try {
-      const result = await restoreZeroCloudBackup(file);
-      if (result.success) {
-        queryClient.invalidateQueries();
-        toast.success(`Successfully restored ${result.count} items.`);
-      }
-    } catch (error) {
-      toast.error('Failed to restore backup.');
-    } finally {
-      setSaving(false);
-      // reset file input
-      e.target.value = null;
-    }
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cherish-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Data exported successfully');
   };
 
   const handleDeleteAll = async () => {
-    // Optionally prompt export before deleting (if not backed up recently)
-    const lastBackupStr = localStorage.getItem('last_backup_date');
-    if (!lastBackupStr || (new Date() - new Date(lastBackupStr)) > 7 * 24 * 60 * 60 * 1000) {
-       const userWantsToExport = window.confirm("You haven't backed up your data recently. Would you like to download a backup before deleting everything?");
-       if (userWantsToExport) {
-         await handleExportData();
-       }
-    }
-
     setSaving(true);
     try {
       const memoryPromises = (memories || []).map(m => base44.entities.Memory.delete(m.id));
@@ -261,14 +233,7 @@ export default function Settings() {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-3xl p-6 shadow-sm"
         >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-medium text-slate-500">Your Data</h2>
-            {isSupported && (
-               <span className={`text-xs px-2 py-1 rounded-full font-medium ${isPersistent ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                 Storage: {isPersistent ? '🟢 Safely Anchored' : '🟡 Volatile'}
-               </span>
-            )}
-          </div>
+          <h2 className="text-sm font-medium text-slate-500 mb-6">Your Data</h2>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
@@ -280,22 +245,14 @@ export default function Settings() {
               <span className="text-slate-400">{vaultItems?.length || 0}</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              <Button
-                variant="outline"
-                onClick={handleExportData}
-                disabled={saving}
-                className="w-full h-12 rounded-xl"
-              >
-                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
-                Export
-              </Button>
-              <label className="w-full h-12 rounded-xl border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer">
-                <input type="file" accept=".json" onChange={handleImportData} className="hidden" />
-                <Upload className="w-4 h-4 mr-2" />
-                Import
-              </label>
-            </div>
+            <Button
+              variant="outline"
+              onClick={handleExportData}
+              className="w-full h-12 rounded-xl mt-4"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Backup
+            </Button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>

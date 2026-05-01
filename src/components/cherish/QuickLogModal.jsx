@@ -10,15 +10,9 @@ import { CalendarDays, MapPin, ImagePlus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 import { categoryConfig } from './CategoryIcon';
-import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 
 export default function QuickLogModal({ open, onClose, category, onSave, defaultDate }) {
   const [date, setDate] = useState(defaultDate || new Date());
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState(null);
@@ -55,22 +49,6 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
     setSaving(false);
     onSave();
     resetAndClose();
-
-    // Post-Milestone Check
-    const memories = queryClient.getQueryData(['memories']);
-    if (memories && memories.length > 0) {
-      const newCount = memories.length + 1; // Since invalidate hasn't re-fetched yet
-      if (newCount % 10 === 0 || (photo && newCount % 5 === 0)) {
-         toast("You've saved some precious memories!", {
-            description: "Tap here to create a secure offline backup.",
-            action: {
-              label: 'Backup',
-              onClick: () => navigate(createPageUrl('Settings'))
-            },
-            duration: 8000,
-         });
-      }
-    }
   };
 
   const resetAndClose = () => {
