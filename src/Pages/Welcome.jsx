@@ -11,33 +11,9 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useStoragePersistence } from '@/lib/useStoragePersistence';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const { isPersistent, isSupported } = useStoragePersistence();
-  const [showPersistenceModal, setShowPersistenceModal] = useState(false);
-
-  useEffect(() => {
-    // Only show once per session or maybe handle this better,
-    // for now let's just wait a bit and if it's not persistent, show it once on mount if supported.
-    // Actually, `isPersistent` will start false and might become true.
-    if (isSupported && isPersistent === false) {
-      const timer = setTimeout(() => {
-        if (!isPersistent) setShowPersistenceModal(true);
-      }, 2000); // Wait 2s to see if request finishes
-      return () => clearTimeout(timer);
-    }
-  }, [isSupported, isPersistent]);
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [partnerName, setPartnerName] = useState('');
@@ -78,23 +54,6 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white flex flex-col items-center justify-center px-6">
-
-      <AlertDialog open={showPersistenceModal} onOpenChange={setShowPersistenceModal}>
-        <AlertDialogContent className="rounded-3xl w-11/12 max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Data Safety Warning</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cherish is a fiercely private, offline-only app. Your memories are saved directly on your device, not on our servers.
-              <br /><br />
-              To prevent your browser from automatically deleting your data, please add Cherish to your Home Screen.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction className="rounded-xl w-full">I Understand</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
