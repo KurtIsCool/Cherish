@@ -9,7 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarDays, Heart, Download, Trash2, ImagePlus, Loader2 } from 'lucide-react';
+import { CalendarDays, Heart, Download, Upload, Trash2, ImagePlus, Loader2, AlertTriangle } from 'lucide-react';
+import { exportBackup, restoreBackup } from '@/api/backupUtils';
+import { useStoragePersistence } from '@/hooks/useStoragePersistence';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +45,8 @@ export default function Settings() {
     queryKey: ['vaultItems'],
     queryFn: () => base44.entities.VaultItem.list()
   });
+
+  const isPersistent = useStoragePersistence();
 
   const partner = partners?.[0];
 
@@ -104,22 +108,26 @@ export default function Settings() {
     toast.success('Settings saved');
   };
 
-  const handleExportData = () => {
-    const exportData = {
-      partner,
-      memories,
-      vaultItems,
-      exportedAt: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `cherish-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success('Data exported successfully');
+  const handleExportData = async () => {
+    const success = await exportBackup();
+    if (success) {
+      toast.success('Data exported successfully');
+    } else {
+      toast.error('Failed to export data');
+    }
+  };
+
+  const handleImportData = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const success = await restoreBackup(file);
+    if (success) {
+      toast.success('Data restored successfully');
+      queryClient.invalidateQueries();
+    } else {
+      toast.error('Failed to restore data. Invalid file format.');
+    }
   };
 
   const handleDeleteAll = async () => {
@@ -249,6 +257,16 @@ export default function Settings() {
         >
           <h2 className="text-sm font-medium text-slate-500 mb-6">Your Data</h2>
 
+          {!isPersistent && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 flex gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="text-sm text-amber-800">
+                <p className="font-semibold mb-1">Storage not persistent</p>
+                <p>Your browser may clear this site's data automatically. Please regularly export your data to avoid losing it.</p>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <div className="flex items-center justify-between py-3 border-b border-slate-100">
               <span className="text-slate-600">Memories logged</span>
@@ -259,14 +277,34 @@ export default function Settings() {
               <span className="text-slate-400">{vaultItems?.length || 0}</span>
             </div>
 
-            <Button
-              variant="outline"
-              onClick={handleExportData}
-              className="w-full h-12 rounded-xl mt-4"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export Backup
-            </Button>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <Button
+                variant="outline"
+                onClick={handleExportData}
+                className="w-full h-12 rounded-xl"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export
+              </Button>
+              <label>
+                <input
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={handleImportData}
+                />
+                <Button
+                  variant="outline"
+                  asChild
+                  className="w-full h-12 rounded-xl cursor-pointer"
+                >
+                  <div>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Import
+                  </div>
+                </Button>
+              </label>
+            </div>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
