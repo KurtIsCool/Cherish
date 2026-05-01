@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Tag } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { base44 } from '@/api/dbClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Soft pastel background colors for tags

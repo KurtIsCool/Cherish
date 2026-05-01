@@ -8,14 +8,15 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarDays, MapPin, ImagePlus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { base44 } from '@/api/base44Client';
+import { base44 } from '@/api/dbClient';
 import { categoryConfig } from './CategoryIcon';
 
 export default function QuickLogModal({ open, onClose, category, onSave, defaultDate }) {
   const [date, setDate] = useState(defaultDate || new Date());
   const [location, setLocation] = useState('');
   const [notes, setNotes] = useState('');
-  const [photo, setPhoto] = useState(null);
+  const [photoData, setPhotoData] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -27,14 +28,31 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
     }
   }, [open, defaultDate]);
 
+  useEffect(() => {
+    return () => {
+      if (photoPreview && photoPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [photoPreview]);
+
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setPhoto(file_url);
+    const { file_data, file_url } = await base44.integrations.Core.UploadFile({ file });
+    setPhotoData(file_data);
+    setPhotoPreview(file_url);
     setUploading(false);
+  };
+
+  const handleRemovePhoto = () => {
+    if (photoPreview && photoPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(photoPreview);
+    }
+    setPhotoData(null);
+    setPhotoPreview(null);
   };
 
   const handleSave = async () => {
@@ -44,7 +62,7 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
       memory_date: format(date, 'yyyy-MM-dd'),
       location: location || null,
       notes: notes || null,
-      photo_url: photo || null
+      photo_url: photoData || null
     });
     setSaving(false);
     onSave();
@@ -55,7 +73,7 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
     setDate(new Date());
     setLocation('');
     setNotes('');
-    setPhoto(null);
+    handleRemovePhoto();
     onClose();
   };
 
@@ -112,11 +130,11 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
           {/* Photo */}
           <div className="space-y-2">
             <Label className="text-slate-500 text-sm font-normal">Photo</Label>
-            {photo ? (
+            {photoPreview ? (
               <div className="relative rounded-xl overflow-hidden">
-                <img src={photo} alt="Memory" className="w-full h-48 object-cover" />
+                <img src={photoPreview} alt="Memory" className="w-full h-48 object-cover" />
                 <button 
-                  onClick={() => setPhoto(null)}
+                  onClick={handleRemovePhoto}
                   className="absolute top-2 right-2 bg-white/80 backdrop-blur rounded-full px-3 py-1 text-xs"
                 >
                   Remove

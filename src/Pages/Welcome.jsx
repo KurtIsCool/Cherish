@@ -6,7 +6,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Heart, CalendarDays, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { base44 } from '@/api/base44Client';
+import { base44 } from '@/api/dbClient';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { motion } from 'framer-motion';
