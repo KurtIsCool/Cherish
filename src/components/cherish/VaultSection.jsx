@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { base44 } from '@/api/dbClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VaultSection({ type, items, onUpdate, label, emptyMessage, isSearching }) {

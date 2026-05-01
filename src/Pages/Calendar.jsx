@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { base44 } from '@/api/base44Client';
+import { base44 } from '@/api/dbClient';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { format, isSameDay, parseISO } from 'date-fns';

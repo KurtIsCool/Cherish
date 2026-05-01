@@ -1,12 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { MapPin } from 'lucide-react';
 import { categoryConfig } from './CategoryIcon';
 
 export default function MemoryCard({ memory }) {
   const [imageError, setImageError] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState(null);
   const config = categoryConfig[memory.category];
   
+  useEffect(() => {
+    let url = null;
+    if (memory.photo_url) {
+      if (typeof memory.photo_url === 'string') {
+        setPhotoUrl(memory.photo_url);
+      } else {
+        // Assume it's a File or Blob
+        url = URL.createObjectURL(memory.photo_url);
+        setPhotoUrl(url);
+      }
+    }
+
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [memory.photo_url]);
+
   // Guard clause: if config is missing or category is invalid, don't crash
   if (!config) return null;
   
@@ -46,10 +66,10 @@ export default function MemoryCard({ memory }) {
       </div>
       
       {/* Image Section with Error Handling */}
-      {memory.photo_url && !imageError && (
+      {photoUrl && !imageError && (
         <div className="mt-3 rounded-xl overflow-hidden bg-slate-50">
           <img 
-            src={memory.photo_url} 
+            src={photoUrl}
             alt="Memory" 
             className="w-full h-32 object-cover"
             onError={() => setImageError(true)}

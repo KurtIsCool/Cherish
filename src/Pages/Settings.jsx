@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/lib/utils';
+import { format } from 'date-fns';
+import { base44 } from '@/api/dbClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { 
-  CalendarDays, 
-  Loader2, 
-  Download, 
-  Trash2,
-  Heart,
-  ImagePlus
-} from 'lucide-react';
-import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/lib/utils'; // FIXED PATH
+import { CalendarDays, Heart, Download, Trash2, ImagePlus, Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,15 +49,30 @@ export default function Settings() {
   const [partnerName, setPartnerName] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [photo, setPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    let url = null;
     if (partner) {
       setPartnerName(partner.partner_name);
       setStartDate(new Date(partner.start_date));
       setPhoto(partner.photo_url || null);
+
+      if (partner.photo_url && typeof partner.photo_url !== 'string') {
+        url = URL.createObjectURL(partner.photo_url);
+        setPhotoPreview(url);
+      } else {
+        setPhotoPreview(partner.photo_url || null);
+      }
     }
+
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
   }, [partner]);
 
   const handlePhotoUpload = async (e) => {
@@ -72,8 +80,14 @@ export default function Settings() {
     if (!file) return;
     
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setPhoto(file_url);
+    const { file_data, file_url } = await base44.integrations.Core.UploadFile({ file });
+
+    if (photoPreview && photoPreview.startsWith('blob:')) {
+      URL.revokeObjectURL(photoPreview);
+    }
+
+    setPhoto(file_data); // Store raw file for saving
+    setPhotoPreview(file_url); // Store url for rendering preview
     setUploading(false);
   };
 
@@ -163,9 +177,9 @@ export default function Settings() {
           <div className="flex justify-center mb-8">
             <label className="relative cursor-pointer group">
               <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
-              {photo ? (
+              {photoPreview ? (
                 <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white shadow-xl">
-                  <img src={photo} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <img src={photoPreview} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 </div>
               ) : (
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-rose-100 to-orange-50 flex items-center justify-center ring-4 ring-white shadow-xl transition-transform duration-300 group-hover:scale-105">
