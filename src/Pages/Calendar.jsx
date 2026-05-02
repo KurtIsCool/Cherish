@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { base44 } from '@/api/dbClient';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
+import { useMemories } from '@/hooks/useMemories';
 import { format, isSameDay, parseISO } from 'date-fns';
 import MemoryCard from '@/components/cherish/MemoryCard';
 import CategoryIcon, { categoryConfig } from '@/components/cherish/CategoryIcon'; // Using the source of truth
@@ -17,10 +16,17 @@ export default function CalendarPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: memories, isLoading } = useQuery({
-    queryKey: ['memories'],
-    queryFn: () => base44.entities.Memory.list('-memory_date')
-  });
+  const { data: allMemories, isPending: isLoading } = useMemories();
+
+  // Sort memories here as useMemories doesn't take sort param in queryFn currently.
+  const memories = useMemo(() => {
+    if (!allMemories) return null;
+    return [...allMemories].sort((a, b) => {
+        const valA = a['memory_date'] ?? '';
+        const valB = b['memory_date'] ?? '';
+        return valA < valB ? 1 : (valA > valB ? -1 : 0);
+    });
+  }, [allMemories]);
 
   const lastEntries = useMemo(() => {
     if (!memories) return {};
@@ -50,7 +56,7 @@ export default function CalendarPage() {
   }, [memories, selectedDate]);
 
   const handleCategorySave = () => {
-    queryClient.invalidateQueries(['memories']);
+    // Left empty as mutations now handle invalidation
   };
 
   const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/dbClient';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { usePartner } from '@/hooks/usePartner';
+import { useVaultItems } from '@/hooks/useVaultItems';
 import { Input } from '@/components/ui/input';
 import { Search, Heart, ThumbsDown, Shield, Sparkles } from 'lucide-react';
 import TagCloudSection from '@/components/cherish/TagCloudSection';
@@ -9,24 +9,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 
 export default function Vault() {
-  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('love');
 
-  const { data: vaultItems, isLoading } = useQuery({
-    queryKey: ['vaultItems'],
-    queryFn: () => base44.entities.VaultItem.list()
-  });
-
-  const { data: partners } = useQuery({
-    queryKey: ['partner'],
-    queryFn: () => base44.entities.Partner.list()
-  });
+  const { data: vaultItems, isPending: isLoading } = useVaultItems();
+  const { data: partners } = usePartner();
 
   const partner = partners?.[0];
 
   const handleUpdate = () => {
-    queryClient.invalidateQueries(['vaultItems']);
+    // Left empty as mutations now handle invalidation
   };
 
   const filteredItems = vaultItems?.filter(item =>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/dbClient';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePartner } from '@/hooks/usePartner';
+import { useMemories } from '@/hooks/useMemories';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { differenceInDays, differenceInMonths, addYears } from 'date-fns';
 import TimeTogether from '@/components/cherish/TimeTogether';
@@ -16,18 +16,20 @@ import { motion } from 'framer-motion';
 
 export default function Home() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const { data: partners, isLoading: loadingPartner } = useQuery({
-    queryKey: ['partner'],
-    queryFn: () => base44.entities.Partner.list()
-  });
+  const { data: partners, isPending: loadingPartner } = usePartner();
 
-  const { data: memories, isLoading: loadingMemories } = useQuery({
-    queryKey: ['memories'],
-    queryFn: () => base44.entities.Memory.list('-memory_date', 50)
-  });
+  const { data: allMemories, isPending: loadingMemories } = useMemories();
+
+  const memories = useMemo(() => {
+    if (!allMemories) return null;
+    return [...allMemories].sort((a, b) => {
+        const valA = a['memory_date'] ?? '';
+        const valB = b['memory_date'] ?? '';
+        return valA < valB ? 1 : (valA > valB ? -1 : 0);
+    }).slice(0, 50);
+  }, [allMemories]);
 
   const partner = partners?.[0];
 
@@ -77,7 +79,7 @@ export default function Home() {
   };
 
   const handleCategorySave = () => {
-    queryClient.invalidateQueries(['memories']);
+    // Left empty as mutations now handle invalidation
   };
 
   const recentMemories = memories?.slice(0, 5) || [];

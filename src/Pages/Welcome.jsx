@@ -6,25 +6,20 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Heart, CalendarDays, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { base44 } from '@/api/dbClient';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils'; // FIXED PATH
 import { motion } from 'framer-motion';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePartner, useCreatePartner } from '@/hooks/usePartner';
 
 export default function Welcome() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [partnerName, setPartnerName] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // Guard: If partner exists, go to home
-  const { data: partners, isLoading } = useQuery({
-    queryKey: ['partner'],
-    queryFn: () => base44.entities.Partner.list()
-  });
+  const { data: partners, isPending: isLoading } = usePartner();
+  const createPartner = useCreatePartner();
 
   useEffect(() => {
     if (!isLoading && partners && partners.length > 0) {
@@ -40,12 +35,11 @@ export default function Welcome() {
     
     if (step === 2 && startDate) {
       setSaving(true);
-      await base44.entities.Partner.create({
+      await createPartner.mutateAsync({
         partner_name: partnerName.trim(),
         start_date: format(startDate, 'yyyy-MM-dd'),
         theme_color: 'warm'
       });
-      await queryClient.invalidateQueries({ queryKey: ['partner'] });
       navigate(createPageUrl('Home'));
     }
   };
