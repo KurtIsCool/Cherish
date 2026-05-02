@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Heart, CalendarDays, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/lib/utils'; // FIXED PATH
+import { createPageUrl } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePartner, useCreatePartner } from '@/hooks/usePartner';
 
@@ -47,21 +47,21 @@ export default function Welcome() {
   if (isLoading) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-rose-50/50 to-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-dvh flex flex-col items-center justify-center bg-taupe-50 px-6 font-sans">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
         className="w-full max-w-sm"
       >
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-100 mb-6">
-            <Heart className="w-7 h-7 text-rose-400" strokeWidth={1.5} />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-primary/10 mb-6">
+            <Heart className="w-7 h-7 text-rose-primary" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl font-light text-slate-700 tracking-tight mb-2">
+          <h1 className="text-4xl font-serif text-text-main mb-2">
             Cherish
           </h1>
-          <p className="text-slate-400 text-sm">Your private vault</p>
+          <p className="text-slate-500 text-sm font-light">Your private vault</p>
         </div>
 
         {/* Step 1: Partner Name */}
@@ -74,14 +74,14 @@ export default function Welcome() {
           }}
           transition={{ duration: 0.3 }}
         >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-slate-500 text-sm font-normal">Who holds your heart?</Label>
+          <div className="space-y-6 text-center">
+            <div className="space-y-4">
+              <Label className="text-text-main text-2xl font-serif font-normal block">Who holds your heart?</Label>
               <Input
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 placeholder="Their name..."
-                className="h-14 p-4 bg-rose-50/50 rounded-2xl border-slate-200 text-center text-lg font-light focus:ring-2 focus:ring-rose-400 focus-visible:ring-2 focus-visible:ring-rose-400"
+                className="h-14 p-4 bg-theme-bg rounded-2xl border-none shadow-sm text-center text-lg font-sans focus:outline-none focus:ring-2 focus:ring-rose-primary/50 focus-visible:ring-2 focus-visible:ring-rose-primary/50"
               />
             </div>
           </div>
@@ -97,14 +97,14 @@ export default function Welcome() {
           }}
           transition={{ duration: 0.3 }}
         >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-slate-500 text-sm font-normal">When did your journey begin?</Label>
+          <div className="space-y-6 text-center">
+            <div className="space-y-4">
+              <Label className="text-text-main text-2xl font-serif font-normal block">When did your journey begin?</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="w-full h-14 rounded-2xl border-slate-200 text-lg font-light"
+                    className="w-full h-14 p-4 bg-theme-bg rounded-2xl border-none shadow-sm text-lg font-sans font-normal hover:bg-theme-bg focus:ring-2 focus:ring-rose-primary/50"
                   >
                     <CalendarDays className="mr-3 h-5 w-5 text-slate-400" />
                     {startDate ? format(startDate, 'MMMM d, yyyy') : 'Select a date...'}
@@ -130,20 +130,25 @@ export default function Welcome() {
           transition={{ delay: 0.3 }}
           className="mt-8"
         >
-          <Button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            className="w-full"
             onClick={handleContinue}
             disabled={(step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving}
-            className="w-full h-14 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-base"
           >
-            {saving ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                {step === 2 ? 'Begin' : 'Continue'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
+            <div
+              className={`w-full h-14 rounded-full bg-slate-800 text-white font-sans font-medium text-base shadow-sm flex items-center justify-center transition-colors ${((step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'}`}
+            >
+              {saving ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  {step === 2 ? 'Begin' : 'Continue'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </div>
+          </motion.button>
         </motion.div>
 
         <div className="flex items-center justify-center gap-2 mt-8">
