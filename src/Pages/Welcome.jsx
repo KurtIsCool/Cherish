@@ -81,7 +81,7 @@ export default function Welcome() {
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
                 placeholder="Their name..."
-                className="h-14 rounded-2xl border-slate-200 text-center text-lg font-light"
+                className="h-14 p-4 bg-rose-50/50 rounded-2xl border-slate-200 text-center text-lg font-light focus:ring-2 focus:ring-rose-400 focus-visible:ring-2 focus-visible:ring-rose-400"
               />
             </div>
           </div>

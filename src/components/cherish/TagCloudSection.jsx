@@ -3,6 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Plus, X, Tag } from 'lucide-react';
 import { useCreateVaultItem, useDeleteVaultItem } from '@/hooks/useVaultItems';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Soft pastel background colors for tags
 const PASTEL_COLORS = [
@@ -20,6 +26,7 @@ export default function TagCloudSection({ type, items, onUpdate, label, emptyMes
   const [isAdding, setIsAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const createVaultItem = useCreateVaultItem();
   const deleteVaultItem = useDeleteVaultItem();
@@ -50,25 +57,29 @@ export default function TagCloudSection({ type, items, onUpdate, label, emptyMes
         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">{label}</h3>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-1 gap-2">
         <AnimatePresence mode="popLayout">
           {filteredItems.map((item, index) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onClick={() => setSelectedItem(item)}
               className={`
-                relative group rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 cursor-default hover:scale-105
+                relative group rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer hover:shadow-md border border-slate-100/50
                 ${PASTEL_COLORS[index % PASTEL_COLORS.length]}
               `}
             >
-              {item.content}
+              <div className="truncate pr-6">{item.content}</div>
               <button
-                onClick={() => handleDelete(item.id)}
-                className="absolute -top-1 -right-1 bg-white text-slate-400 rounded-full p-0.5 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item.id);
+                }}
+                className="absolute top-1/2 -translate-y-1/2 right-2 bg-white/80 text-slate-400 rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
               >
-                <X className="w-3 h-3" />
+                <X className="w-4 h-4" />
               </button>
             </motion.div>
           ))}
@@ -116,6 +127,20 @@ export default function TagCloudSection({ type, items, onUpdate, label, emptyMes
             <p className="text-xs mt-1 opacity-70">Tap to add</p>
         </button>
       )}
+
+      {/* Dialog for showing full content */}
+      <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="sm:max-w-[425px] rounded-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-700 capitalize">{type}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-600 text-lg leading-relaxed whitespace-pre-wrap">
+              {selectedItem?.content}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
