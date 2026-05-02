@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { usePartner } from '@/hooks/usePartner';
-import { useVaultItems } from '@/hooks/useVaultItems';
-import { Search, Heart, ThumbsDown, Shield, Sparkles } from 'lucide-react';
+import { useVaultItems, useCreateVaultItem } from '@/hooks/useVaultItems';
+import { Search, Heart, ThumbsDown, Shield, Sparkles, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CATEGORIES = [
@@ -51,8 +52,28 @@ export default function Vault() {
 
   const { data: vaultItems, isPending: isLoading } = useVaultItems();
   const { data: partners } = usePartner();
+  const createVaultItem = useCreateVaultItem();
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newItemContent, setNewItemContent] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState('love');
 
   const partner = partners?.[0];
+
+  const handleSaveItem = () => {
+    if (!newItemContent.trim()) return;
+
+    createVaultItem.mutate({
+      type: newItemCategory,
+      content: newItemContent.trim()
+    }, {
+      onSuccess: () => {
+        setNewItemContent('');
+        setNewItemCategory('love');
+        setIsDialogOpen(false);
+      }
+    });
+  };
 
   const filteredItems = vaultItems?.filter(item => {
     const matchesSearch = item.content.toLowerCase().includes(searchQuery.toLowerCase());
@@ -134,6 +155,62 @@ export default function Vault() {
           )}
         </div>
       </div>
+
+      {/* FAB & Modal */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <button className="fixed bottom-24 right-6 w-14 h-14 bg-rose-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-rose-600 transition-colors z-40">
+            <Plus className="w-6 h-6" />
+          </button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md bg-white rounded-3xl p-6 border-none shadow-xl w-[90vw] mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-serif font-bold text-slate-800">Add to Vault</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div>
+              <label className="text-sm font-semibold text-slate-600 mb-3 block">Category</label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORIES.filter(c => c.id !== 'all').map(category => {
+                  const isSelected = newItemCategory === category.id;
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => setNewItemCategory(category.id)}
+                      className={`
+                        px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2
+                        ${isSelected ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}
+                      `}
+                    >
+                      {category.icon && <category.icon className={`w-4 h-4 ${isSelected ? 'text-white' : category.color}`} />}
+                      {category.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold text-slate-600 mb-3 block">Memory or Detail</label>
+              <textarea
+                value={newItemContent}
+                onChange={(e) => setNewItemContent(e.target.value)}
+                placeholder="What do you want to remember?"
+                className="w-full p-4 rounded-2xl bg-slate-50 border-none min-h-[120px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-primary/50 transition-all text-sm resize-none"
+              />
+            </div>
+
+            <button
+              onClick={handleSaveItem}
+              disabled={!newItemContent.trim() || createVaultItem.isPending}
+              className="w-full py-4 bg-rose-primary text-white rounded-2xl font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-rose-600 transition-colors flex items-center justify-center"
+            >
+              {createVaultItem.isPending ? 'Saving...' : 'Save to Vault'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
