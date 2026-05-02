@@ -8,7 +8,8 @@ import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -58,6 +59,9 @@ export default function Home() {
 
   const daysTogether = partner ? differenceInDays(new Date(), new Date(partner.start_date)) : 0;
 
+  const nextMilestone = Math.ceil((daysTogether + 1) / 50) * 50;
+  const daysUntilMilestone = nextMilestone - daysTogether;
+
   const handleCategorySave = () => {
     // Left empty as mutations now handle invalidation
   };
@@ -91,6 +95,45 @@ export default function Home() {
               {daysTogether}
             </span>
             <p className="text-slate-500 mt-2 font-medium">with {partner.partner_name}</p>
+            {/* The Horizon */}
+            <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-100 mt-6 overflow-hidden">
+              <div className="h-full bg-rose-400" style={{ width: `${(daysTogether / nextMilestone) * 100}%` }} />
+            </div>
+            <p className="text-[11px] text-slate-400 mt-2 uppercase tracking-wider">
+              {daysUntilMilestone} days until your {nextMilestone}-day mark
+            </p>
+          </div>
+        </motion.div>
+
+        {/* The Vault Whisper */}
+        <motion.div variants={slideUp} className="w-full">
+          <div className="bg-rose-50/50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+            <Sparkles className="w-4 h-4 text-rose-400" />
+            <span>"A gentle reminder: they love when you leave small notes."</span>
+          </div>
+        </motion.div>
+
+        {/* The Pulse */}
+        <motion.div variants={slideUp} className="w-full flex flex-col items-center">
+          <h3 className="font-serif text-lg font-bold text-text-main mb-4">How are you feeling about them?</h3>
+          <div className="flex flex-row justify-center gap-4 w-full">
+            {[
+              { emoji: '🦋', label: 'Butterflies' },
+              { emoji: '🕊️', label: 'Peaceful' },
+              { emoji: '🔥', label: 'Passionate' },
+              { emoji: '🥺', label: 'Missing You' }
+            ].map((item, idx) => (
+              <motion.button
+                key={idx}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => toast.success(`Quick log saved: ${item.label}`)}
+                className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-2xl"
+                aria-label={item.label}
+              >
+                {item.emoji}
+              </motion.button>
+            ))}
           </div>
         </motion.div>
 
