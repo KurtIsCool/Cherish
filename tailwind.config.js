@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -32,6 +34,12 @@ module.exports = {
         ]
       },
       colors: {
+        'theme-bg': '#FCFAF8',
+        'taupe-50': '#F7F5F2',
+        'rose-primary': '#D9777F',
+        'coral-soft': '#F4A298',
+        'blush-muted': '#E8B4B8',
+        'text-main': '#333132',
         vault: {
           rose: '#a94a5a',     // Deep Rosé
           taupe: '#8b7d7b',    // Warm Taupe
@@ -118,5 +126,26 @@ module.exports = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function({ addUtilities }) {
+      addUtilities({
+        '.p-safe': {
+          padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)',
+        },
+        '.pt-safe': {
+          paddingTop: 'env(safe-area-inset-top)',
+        },
+        '.pr-safe': {
+          paddingRight: 'env(safe-area-inset-right)',
+        },
+        '.pb-safe': {
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        },
+        '.pl-safe': {
+          paddingLeft: 'env(safe-area-inset-left)',
+        },
+      })
+    })
+  ],
 }
