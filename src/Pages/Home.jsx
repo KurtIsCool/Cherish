@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePartner } from '@/hooks/usePartner';
-import { useMemories } from '@/hooks/useMemories';
+import { useMemories, useCreateMemory } from '@/hooks/useMemories';
 import { createPageUrl } from '@/lib/utils';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, format, addMonths, isBefore, isSameDay } from 'date-fns';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Flower2, Bird, Flame, Heart, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Home() {
@@ -18,6 +18,7 @@ export default function Home() {
 
   const { data: partners, isPending: loadingPartner } = usePartner();
   const { data: allMemories, isPending: loadingMemories } = useMemories();
+  const createMemory = useCreateMemory();
 
   const memories = useMemo(() => {
     if (!allMemories) return null;
@@ -59,8 +60,26 @@ export default function Home() {
 
   const daysTogether = partner ? differenceInDays(new Date(), new Date(partner.start_date)) : 0;
 
-  const nextMilestone = Math.ceil((daysTogether + 1) / 50) * 50;
-  const daysUntilMilestone = nextMilestone - daysTogether;
+  let nextMonthsarry = null;
+  let daysUntilMilestone = 0;
+
+  if (partner) {
+    const start = new Date(partner.start_date);
+    const now = new Date();
+
+    // Find the next monthsarry
+    let monthsToAdd = 1;
+    let nextDate = addMonths(start, monthsToAdd);
+
+    while (isBefore(nextDate, now) && !isSameDay(nextDate, now)) {
+      monthsToAdd++;
+      nextDate = addMonths(start, monthsToAdd);
+    }
+
+    nextMonthsarry = nextDate;
+    daysUntilMilestone = differenceInDays(nextDate, now);
+    if (daysUntilMilestone < 0) daysUntilMilestone = 0;
+  }
 
   const handleCategorySave = () => {
     // Left empty as mutations now handle invalidation
@@ -83,7 +102,7 @@ export default function Home() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="max-w-md mx-auto px-5 pt-8 flex flex-col gap-8 items-center"
+        className="max-w-md mx-auto px-6 pt-8 flex flex-col gap-8 items-center"
       >
         {/* Hero Section: Days Together Counter */}
         <motion.div variants={slideUp} className="w-full">
@@ -96,44 +115,64 @@ export default function Home() {
             </span>
             <p className="text-slate-500 mt-2 font-medium">with {partner.partner_name}</p>
             {/* The Horizon */}
-            <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-100 mt-6 overflow-hidden">
-              <div className="h-full bg-rose-400" style={{ width: `${(daysTogether / nextMilestone) * 100}%` }} />
+            <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-200 mt-6 overflow-hidden">
+              <div className="h-full bg-rose-400" style={{ width: `${Math.min(100, Math.max(0, 100 - (daysUntilMilestone / 30) * 100))}%` }} />
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 uppercase tracking-wider">
-              {daysUntilMilestone} days until your {nextMilestone}-day mark
+            <p className="text-[11px] text-slate-500 mt-2 uppercase tracking-wider font-medium">
+              {daysUntilMilestone} {daysUntilMilestone === 1 ? 'day' : 'days'} until your Monthsarry
             </p>
           </div>
         </motion.div>
 
         {/* The Vault Whisper */}
         <motion.div variants={slideUp} className="w-full">
-          <div className="bg-rose-50/50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-rose-400" />
-            <span>"A gentle reminder: they love when you leave small notes."</span>
+          <div className="bg-rose-50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-center text-center">
+            <span>"Quality time check: A quiet walk tonight could mean the world."</span>
           </div>
         </motion.div>
 
         {/* The Pulse */}
         <motion.div variants={slideUp} className="w-full flex flex-col items-center">
-          <h3 className="font-serif text-lg font-bold text-text-main mb-4">How are you feeling about them?</h3>
+          <h3 className="font-serif text-lg font-bold text-text-main mb-4">How are you feeling right now?</h3>
           <div className="flex flex-row justify-center gap-4 w-full">
             {[
-              { emoji: '🦋', label: 'Butterflies' },
-              { emoji: '🕊️', label: 'Peaceful' },
-              { emoji: '🔥', label: 'Passionate' },
-              { emoji: '🥺', label: 'Missing You' }
+              { icon: Flower2, label: 'Butterflies', note: 'i feel butterflies because of my partner', color: 'text-sky-500' },
+              { icon: Bird, label: 'Peaceful', note: 'im peaceful because partner', color: 'text-emerald-500' },
+              { icon: Flame, label: 'Passionate', note: 'i feel passionate about my partner', color: 'text-orange-500' },
+              { icon: Heart, label: 'Missing You', note: 'i miss my partner', color: 'text-rose-500' }
             ].map((item, idx) => (
               <motion.button
                 key={idx}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => toast.success(`Quick log saved: ${item.label}`)}
-                className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-2xl"
+                onClick={async () => {
+                  await createMemory.mutateAsync({
+                    category: 'emotion',
+                    memory_date: format(new Date(), 'yyyy-MM-dd'),
+                    notes: item.note,
+                  });
+                  toast.success(`Quick log saved: ${item.label}`);
+                }}
+                className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm"
                 aria-label={item.label}
               >
-                {item.emoji}
+                <item.icon className={`w-6 h-6 ${item.color}`} strokeWidth={1.5} />
               </motion.button>
             ))}
+          </div>
+        </motion.div>
+
+
+        {/* The Spark */}
+        <motion.div variants={slideUp} className="w-full">
+          <div className="bg-white shadow-sm rounded-2xl p-4 flex flex-col gap-3 cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setSelectedCategory('emotion')}>
+            <div className="flex items-center gap-2 text-rose-primary">
+              <PenLine className="w-4 h-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">Daily Spark</span>
+            </div>
+            <p className="font-serif text-text-main text-lg leading-snug">
+              What was the exact moment you realized you loved them?
+            </p>
           </div>
         </motion.div>
 
@@ -168,10 +207,9 @@ export default function Home() {
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => setSelectedCategory('emotion')}
-        className="fixed bottom-24 right-6 z-50 bg-rose-primary text-white rounded-full shadow-lg h-14 px-6 flex items-center justify-center gap-2 font-medium"
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-rose-primary text-white rounded-full shadow-lg flex items-center justify-center"
       >
-        <Plus className="w-5 h-5" />
-        Log Memory
+        <Plus className="w-6 h-6" />
       </motion.button>
 
       {/* Quick Log Modal */}
