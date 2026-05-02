@@ -24,9 +24,28 @@ module.exports = {
           '-apple-system',
           'BlinkMacSystemFont',
           'sans-serif'
+        ],
+        serif: [
+          'Playfair Display',
+          'Merriweather',
+          'serif'
         ]
       },
       colors: {
+        vault: {
+          rose: '#a94a5a',     // Deep Rosé
+          taupe: '#8b7d7b',    // Warm Taupe
+          cream: '#fcfaf8',    // Soft Cream
+          sand: '#f5efe6',     // Sand
+        },
+        category: {
+          dining: '#e07a5f',   // Warm Terracotta
+          gift: '#f2cc8f',     // Soft Gold
+          date: '#e5989b',     // Muted Pink
+          media: '#81b29a',    // Sage Green
+          emotion: '#8e9aaf',  // Dusty Blue
+          conflict: '#6c757d', // Cool Grey
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
