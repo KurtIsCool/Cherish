@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarDays, Heart, Download, Upload, Trash2, ImagePlus, Loader2, AlertTriangle } from 'lucide-react';
 import { exportBackup, restoreBackup } from '@/api/backupUtils';
 import { useStoragePersistence } from '@/hooks/useStoragePersistence';
+import { base44 } from '@/api/dbClient';
 import {
   AlertDialog,
   AlertDialogAction,
