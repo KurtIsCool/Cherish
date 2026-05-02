@@ -14,7 +14,6 @@ export default function CalendarPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [quickLogOpen, setQuickLogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const queryClient = useQueryClient();
 
   const { data: allMemories, isPending: isLoading } = useMemories();
 
@@ -93,7 +92,7 @@ export default function CalendarPage() {
               caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
               caption_label: "text-lg font-bold text-slate-700",
               nav: "absolute inset-0 flex items-center justify-between",
-              nav_button: "h-8 w-8 bg-transparent hover:bg-slate-50 p-0 opacity-50 hover:opacity-100 transition-opacity rounded-full flex items-center justify-center",
+              nav_button: "h-11 w-11 bg-transparent p-0 opacity-50 transition-opacity rounded-full flex items-center justify-center",
               nav_button_previous: "absolute left-1",
               nav_button_next: "absolute right-1",
               table: "w-full border-collapse",
@@ -101,7 +100,7 @@ export default function CalendarPage() {
               head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider",
               row: "flex w-full mt-2",
               cell: "w-full text-center text-sm relative p-0",
-              day: "h-10 w-10 mx-auto rounded-full font-medium hover:bg-rose-50 transition-all text-slate-600 data-[selected=true]:bg-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:shadow-primary/30 data-[selected=true]:scale-110 active:scale-95",
+              day: "h-11 w-11 mx-auto rounded-full font-medium transition-all text-slate-600 data-[selected=true]:bg-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:shadow-primary/30 data-[selected=true]:scale-110 active:scale-95",
               day_today: "bg-slate-100 text-slate-900 font-bold",
               day_outside: "text-slate-300 opacity-50",
             }}
