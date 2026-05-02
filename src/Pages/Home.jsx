@@ -8,7 +8,7 @@ import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
-import { Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles, Heart, Flame, Wind, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Home() {
@@ -83,7 +83,7 @@ export default function Home() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="max-w-md mx-auto px-5 pt-8 flex flex-col gap-8 items-center"
+        className="max-w-md mx-auto px-6 pt-8 flex flex-col gap-8 items-center"
       >
         {/* Hero Section: Days Together Counter */}
         <motion.div variants={slideUp} className="w-full">
@@ -96,44 +96,52 @@ export default function Home() {
             </span>
             <p className="text-slate-500 mt-2 font-medium">with {partner.partner_name}</p>
             {/* The Horizon */}
-            <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-100 mt-6 overflow-hidden">
+            <div className="w-full max-w-[200px] h-1 rounded-full bg-slate-200 mt-6 overflow-hidden">
               <div className="h-full bg-rose-400" style={{ width: `${(daysTogether / nextMilestone) * 100}%` }} />
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 uppercase tracking-wider">
-              {daysUntilMilestone} days until your {nextMilestone}-day mark
+            <p className="text-[11px] text-slate-500 mt-2 uppercase tracking-wider">
+              7 days until Next Date Night
             </p>
           </div>
         </motion.div>
 
         {/* The Vault Whisper */}
         <motion.div variants={slideUp} className="w-full">
-          <div className="bg-rose-50/50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+          <div className="bg-rose-50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4 text-rose-400" />
-            <span>"A gentle reminder: they love when you leave small notes."</span>
+            <span>"A gentle reminder: taking care of a chore they dread speaks volumes today. ✨"</span>
           </div>
         </motion.div>
 
         {/* The Pulse */}
         <motion.div variants={slideUp} className="w-full flex flex-col items-center">
-          <h3 className="font-serif text-lg font-bold text-text-main mb-4">How are you feeling about them?</h3>
+          <h3 className="font-serif text-lg font-bold text-text-main mb-4">How are you feeling right now?</h3>
           <div className="flex flex-row justify-center gap-4 w-full">
             {[
-              { emoji: '🦋', label: 'Butterflies' },
-              { emoji: '🕊️', label: 'Peaceful' },
-              { emoji: '🔥', label: 'Passionate' },
-              { emoji: '🥺', label: 'Missing You' }
+              { icon: <Heart className="w-6 h-6 text-rose-400" />, label: 'Butterflies' },
+              { icon: <Sparkles className="w-6 h-6 text-amber-400" />, label: 'Peaceful' },
+              { icon: <Flame className="w-6 h-6 text-orange-400" />, label: 'Passionate' },
+              { icon: <Wind className="w-6 h-6 text-sky-400" />, label: 'Missing You' }
             ].map((item, idx) => (
               <motion.button
                 key={idx}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => toast.success(`Quick log saved: ${item.label}`)}
-                className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-2xl"
+                className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-sm"
                 aria-label={item.label}
               >
-                {item.emoji}
+                {item.icon}
               </motion.button>
             ))}
+          </div>
+        </motion.div>
+
+        {/* The Spark Prompt */}
+        <motion.div variants={slideUp} className="w-full">
+          <div className="bg-white shadow-sm rounded-2xl p-4 flex items-center gap-3 cursor-pointer" onClick={() => toast.success('Prompt opened')}>
+            <PenLine className="w-5 h-5 text-rose-400" />
+            <p className="text-sm font-medium text-text-main">What made you smile about them today?</p>
           </div>
         </motion.div>
 
@@ -168,10 +176,9 @@ export default function Home() {
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => setSelectedCategory('emotion')}
-        className="fixed bottom-24 right-6 z-50 bg-rose-primary text-white rounded-full shadow-lg h-14 px-6 flex items-center justify-center gap-2 font-medium"
+        className="fixed bottom-24 right-6 z-50 bg-rose-primary text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center"
       >
-        <Plus className="w-5 h-5" />
-        Log Memory
+        <Plus className="w-6 h-6" />
       </motion.button>
 
       {/* Quick Log Modal */}
