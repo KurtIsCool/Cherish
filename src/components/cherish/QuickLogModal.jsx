@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarDays, MapPin, ImagePlus, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { base44 } from '@/api/dbClient';
+import { useCreateMemory } from '@/hooks/useMemories';
 import { categoryConfig } from './CategoryIcon';
 
 export default function QuickLogModal({ open, onClose, category, onSave, defaultDate }) {
@@ -19,6 +20,8 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
   const [photoPreview, setPhotoPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const createMemory = useCreateMemory();
 
   const config = categoryConfig[category];
 
@@ -57,7 +60,7 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.entities.Memory.create({
+    await createMemory.mutateAsync({
       category,
       memory_date: format(date, 'yyyy-MM-dd'),
       location: location || null,

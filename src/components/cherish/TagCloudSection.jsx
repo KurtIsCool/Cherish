@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, X, Tag } from 'lucide-react';
-import { base44 } from '@/api/dbClient';
+import { useCreateVaultItem, useDeleteVaultItem } from '@/hooks/useVaultItems';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Soft pastel background colors for tags
@@ -21,10 +21,13 @@ export default function TagCloudSection({ type, items, onUpdate, label, emptyMes
   const [newItem, setNewItem] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const createVaultItem = useCreateVaultItem();
+  const deleteVaultItem = useDeleteVaultItem();
+
   const handleAdd = async () => {
     if (!newItem.trim()) return;
     setLoading(true);
-    await base44.entities.VaultItem.create({
+    await createVaultItem.mutateAsync({
       type,
       content: newItem.trim()
     });
@@ -35,7 +38,7 @@ export default function TagCloudSection({ type, items, onUpdate, label, emptyMes
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.VaultItem.delete(id);
+    await deleteVaultItem.mutateAsync(id);
     onUpdate();
   };
 

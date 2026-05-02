@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils';
 import { format } from 'date-fns';
-import { base44 } from '@/api/dbClient';
+import { usePartner, useUpdatePartner, useDeletePartner } from '@/hooks/usePartner';
+import { useMemories, useDeleteMemory } from '@/hooks/useMemories';
+import { useVaultItems, useDeleteVaultItem } from '@/hooks/useVaultItems';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,20 +33,14 @@ export default function Settings() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data: partners, isLoading } = useQuery({
-    queryKey: ['partner'],
-    queryFn: () => base44.entities.Partner.list()
-  });
+  const { data: partners, isPending: isLoading } = usePartner();
+  const { data: memories } = useMemories();
+  const { data: vaultItems } = useVaultItems();
 
-  const { data: memories } = useQuery({
-    queryKey: ['memories'],
-    queryFn: () => base44.entities.Memory.list()
-  });
-
-  const { data: vaultItems } = useQuery({
-    queryKey: ['vaultItems'],
-    queryFn: () => base44.entities.VaultItem.list()
-  });
+  const updatePartner = useUpdatePartner();
+  const deletePartner = useDeletePartner();
+  const deleteMemory = useDeleteMemory();
+  const deleteVaultItem = useDeleteVaultItem();
 
   const isPersistent = useStoragePersistence();
 
@@ -98,12 +94,14 @@ export default function Settings() {
   const handleSave = async () => {
     if (!partner) return;
     setSaving(true);
-    await base44.entities.Partner.update(partner.id, {
-      partner_name: partnerName,
-      start_date: format(startDate, 'yyyy-MM-dd'),
-      photo_url: photo
+    await updatePartner.mutateAsync({
+      id: partner.id,
+      updates: {
+        partner_name: partnerName,
+        start_date: format(startDate, 'yyyy-MM-dd'),
+        photo_url: photo
+      }
     });
-    queryClient.invalidateQueries(['partner']);
     setSaving(false);
     toast.success('Settings saved');
   };
@@ -133,14 +131,14 @@ export default function Settings() {
   const handleDeleteAll = async () => {
     setSaving(true);
     try {
-      const memoryPromises = (memories || []).map(m => base44.entities.Memory.delete(m.id));
+      const memoryPromises = (memories || []).map(m => deleteMemory.mutateAsync(m.id));
       await Promise.all(memoryPromises);
 
-      const vaultPromises = (vaultItems || []).map(v => base44.entities.VaultItem.delete(v.id));
+      const vaultPromises = (vaultItems || []).map(v => deleteVaultItem.mutateAsync(v.id));
       await Promise.all(vaultPromises);
 
       if (partner) {
-        await base44.entities.Partner.delete(partner.id);
+        await deletePartner.mutateAsync(partner.id);
       }
       
       queryClient.clear();

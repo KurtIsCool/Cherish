@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Pencil, Check, X, Trash2 } from 'lucide-react';
-import { base44 } from '@/api/dbClient';
+import { useCreateVaultItem, useDeleteVaultItem } from '@/hooks/useVaultItems';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function VaultSection({ type, items, onUpdate, label, emptyMessage, isSearching }) {
@@ -10,10 +10,13 @@ export default function VaultSection({ type, items, onUpdate, label, emptyMessag
   const [newItem, setNewItem] = useState('');
   const [adding, setAdding] = useState(false);
 
+  const createVaultItem = useCreateVaultItem();
+  const deleteVaultItem = useDeleteVaultItem();
+
   const handleAdd = async () => {
     if (!newItem.trim()) return;
     setAdding(true);
-    await base44.entities.VaultItem.create({
+    await createVaultItem.mutateAsync({
       type,
       content: newItem.trim()
     });
@@ -23,7 +26,7 @@ export default function VaultSection({ type, items, onUpdate, label, emptyMessag
   };
 
   const handleDelete = async (id) => {
-    await base44.entities.VaultItem.delete(id);
+    await deleteVaultItem.mutateAsync(id);
     onUpdate();
   };
 
