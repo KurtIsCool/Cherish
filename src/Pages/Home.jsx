@@ -2,25 +2,20 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePartner } from '@/hooks/usePartner';
 import { useMemories } from '@/hooks/useMemories';
-import { createPageUrl } from '@/lib/utils'; // FIXED PATH
-import { differenceInDays, differenceInMonths, addYears } from 'date-fns';
-import TimeTogether from '@/components/cherish/TimeTogether';
-import CategoryIcon from '@/components/cherish/CategoryIcon';
-import InsightCard from '@/components/cherish/InsightCard';
-import LivingTimeline from '@/components/cherish/LivingTimeline';
-import ProfileCover from '@/components/cherish/ProfileCover';
-import SparkWidget from '@/components/cherish/SparkWidget';
+import { createPageUrl } from '@/lib/utils';
+import { differenceInDays } from 'date-fns';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
-import { fadeIn, slideUp, staggerContainer, tapScale } from '@/lib/animations';
+import { staggerContainer, slideUp } from '@/lib/animations';
+import { Plus } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState(null);
 
   const { data: partners, isPending: loadingPartner } = usePartner();
-
   const { data: allMemories, isPending: loadingMemories } = useMemories();
 
   const memories = useMemo(() => {
@@ -29,7 +24,7 @@ export default function Home() {
         const valA = a['memory_date'] ?? '';
         const valB = b['memory_date'] ?? '';
         return valA < valB ? 1 : (valA > valB ? -1 : 0);
-    }).slice(0, 50);
+    });
   }, [allMemories]);
 
   const partner = partners?.[0];
@@ -40,148 +35,107 @@ export default function Home() {
     }
   }, [loadingPartner, partner, navigate]);
 
+  const latestMemory = memories?.[0];
+
+  useEffect(() => {
+    let url = null;
+    if (latestMemory?.photo_url) {
+      if (typeof latestMemory.photo_url === 'string') {
+        setPhotoUrl(latestMemory.photo_url);
+      } else {
+        url = URL.createObjectURL(latestMemory.photo_url);
+        setPhotoUrl(url);
+      }
+    } else {
+      setPhotoUrl(null);
+    }
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
+  }, [latestMemory]);
+
   const daysTogether = partner ? differenceInDays(new Date(), new Date(partner.start_date)) : 0;
-
-  const getInsight = () => {
-    if (!memories?.length || !partner) return null;
-
-    const now = new Date();
-    const startDate = new Date(partner.start_date);
-    
-    // Check for upcoming anniversary
-    const nextAnniversary = addYears(startDate, differenceInDays(now, startDate) / 365 + 1);
-    const daysUntilAnniversary = differenceInDays(nextAnniversary, now);
-    if (daysUntilAnniversary > 0 && daysUntilAnniversary <= 7) {
-      return {
-        type: 'milestone',
-        data: { message: `Your anniversary is in ${daysUntilAnniversary} day${daysUntilAnniversary > 1 ? 's' : ''}. Something special planned?` }
-      };
-    }
-
-    // Check last date
-    const lastDate = memories.find(m => m.category === 'date');
-    if (!lastDate || differenceInDays(now, new Date(lastDate.memory_date)) > 14) {
-      return { type: 'date_suggestion' };
-    }
-
-    // Check last gift
-    const lastGift = memories.find(m => m.category === 'gift');
-    if (!lastGift || differenceInMonths(now, new Date(lastGift.memory_date)) >= 3) {
-      return { type: 'gift_suggestion' };
-    }
-
-    // Check emotional moments
-    const lastEmotion = memories.find(m => m.category === 'emotion');
-    if (!lastEmotion || differenceInDays(now, new Date(lastEmotion.memory_date)) > 30) {
-      return { type: 'emotional_check' };
-    }
-
-    return null;
-  };
 
   const handleCategorySave = () => {
     // Left empty as mutations now handle invalidation
   };
 
-  const recentMemories = memories?.slice(0, 5) || [];
-  const insight = getInsight();
-
-  if (loadingPartner) {
+  if (loadingPartner || loadingMemories) {
     return (
-      <div className="min-h-dvh bg-vault-cream p-6">
-        <Skeleton className="h-64 w-full rounded-3xl mb-8" />
-        <div className="flex justify-center gap-4 mb-8">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <Skeleton key={i} className="w-14 h-20 rounded-2xl" />
-          ))}
-        </div>
+      <div className="min-h-dvh bg-taupe-50 p-6 flex flex-col items-center pt-8">
+        <Skeleton className="h-40 w-full max-w-sm rounded-3xl mb-8" />
+        <Skeleton className="h-64 w-full max-w-sm rounded-3xl" />
       </div>
     );
   }
 
   if (!partner) return null;
 
-  const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];
-
   return (
-    <div className="min-h-dvh bg-slate-50">
+    <div className="min-h-dvh bg-taupe-50 pb-20 relative">
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="max-w-md mx-auto px-5 pb-32 pt-6"
+        className="max-w-md mx-auto px-5 pt-8 flex flex-col gap-8 items-center"
       >
-        {/* Profile Cover Card */}
-        <motion.div variants={slideUp}>
-          <ProfileCover
-            partnerName={partner.partner_name}
-            startDate={partner.start_date}
-            daysTogether={daysTogether}
-          />
-        </motion.div>
-
-        {/* Daily Spark Widget */}
-        <motion.div variants={slideUp}>
-          <SparkWidget />
-        </motion.div>
-
-        {/* Quick Actions (Floating Bubbles) */}
-        <motion.div variants={slideUp} className="mb-8">
-          <h3 className="font-serif text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Log a memory</h3>
-          <div className="flex justify-between gap-2 overflow-x-auto pb-4 no-scrollbar">
-            {categories.map((cat, idx) => (
-              <motion.div key={cat} variants={fadeIn} whileTap={tapScale}>
-                <CategoryIcon
-                  category={cat}
-                  size="md"
-                  onClick={() => setSelectedCategory(cat)}
-                  className="min-w-[44px] min-h-[44px] active:scale-95 transition-transform bg-gradient-to-br from-white to-vault-sand shadow-sm border border-vault-sand/50"
-                />
-              </motion.div>
-            ))}
+        {/* Hero Section: Days Together Counter */}
+        <motion.div variants={slideUp} className="w-full">
+          <div className="bg-white rounded-3xl shadow-sm p-8 text-center flex flex-col items-center justify-center">
+            <h2 className="text-sm font-medium text-slate-400 uppercase tracking-widest mb-2">
+              Days Together
+            </h2>
+            <span className="font-serif text-6xl text-text-main">
+              {daysTogether}
+            </span>
+            <p className="text-slate-500 mt-2 font-medium">with {partner.partner_name}</p>
           </div>
         </motion.div>
 
-        {/* Insight Card */}
-        {insight && (
-          <motion.div
-            variants={slideUp}
-            className="mb-10"
-          >
-            <InsightCard 
-              type={insight.type} 
-              data={insight.data} 
-              partnerName={partner.partner_name} 
-            />
+        {/* Latest Memory (The Polaroid) */}
+        {latestMemory && (
+          <motion.div variants={slideUp} className="w-full">
+            <h3 className="font-serif text-xl font-bold text-text-main mb-4 px-2">Latest Memory</h3>
+            <div className="bg-white rounded-xl shadow-md p-4 pb-6 transform rotate-2 mx-2">
+              {photoUrl ? (
+                <div className="w-full aspect-square bg-slate-100 mb-4 rounded overflow-hidden">
+                  <img src={photoUrl} alt="Latest memory" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="w-full aspect-square bg-taupe-50 mb-4 rounded flex items-center justify-center">
+                  <span className="text-slate-400 italic">No photo attached</span>
+                </div>
+              )}
+              <div className="px-2">
+                <p className="font-serif text-lg text-text-main leading-snug line-clamp-2">
+                  {latestMemory.notes || latestMemory.location || "A beautiful moment."}
+                </p>
+                <p className="text-xs text-slate-400 mt-2 uppercase tracking-wide">
+                  {latestMemory.memory_date}
+                </p>
+              </div>
+            </div>
           </motion.div>
         )}
-
-        {/* Living Timeline */}
-        <motion.div
-          variants={slideUp}
-        >
-          <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="font-serif text-2xl font-bold text-vault-taupe">Latest Moments</h2>
-            {memories?.length > 0 && (
-              <motion.button
-                whileTap={tapScale}
-                onClick={() => navigate(createPageUrl('Calendar'))}
-                className="text-sm font-semibold text-vault-rose active:bg-vault-sand transition-colors bg-white shadow-sm border border-vault-sand/50 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center bg-gradient-to-r from-white to-vault-sand/30"
-              >
-                View Calendar
-              </motion.button>
-            )}
-          </div>
-
-          <LivingTimeline memories={recentMemories} loading={loadingMemories} />
-        </motion.div>
       </motion.div>
+
+      {/* Primary Action: Log Memory FAB */}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setSelectedCategory('emotion')}
+        className="fixed bottom-24 right-6 z-50 bg-rose-primary text-white rounded-full shadow-lg h-14 px-6 flex items-center justify-center gap-2 font-medium"
+      >
+        <Plus className="w-5 h-5" />
+        Log Memory
+      </motion.button>
 
       {/* Quick Log Modal */}
       <QuickLogModal
         open={!!selectedCategory}
         onClose={() => setSelectedCategory(null)}
-        category={selectedCategory}
+        category={selectedCategory || 'emotion'}
         onSave={handleCategorySave}
       />
     </div>

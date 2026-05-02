@@ -3,7 +3,7 @@ import { Calendar, CalendarDayButton } from '@/components/ui/calendar';
 import { useMemories } from '@/hooks/useMemories';
 import { format, isSameDay, parseISO } from 'date-fns';
 import MemoryCard from '@/components/cherish/MemoryCard';
-import CategoryIcon, { categoryConfig } from '@/components/cherish/CategoryIcon'; // Using the source of truth
+import CategoryIcon, { categoryConfig } from '@/components/cherish/CategoryIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,6 @@ export default function CalendarPage() {
 
   const { data: allMemories, isPending: isLoading } = useMemories();
 
-  // Sort memories here as useMemories doesn't take sort param in queryFn currently.
   const memories = useMemo(() => {
     if (!allMemories) return null;
     return [...allMemories].sort((a, b) => {
@@ -61,10 +60,10 @@ export default function CalendarPage() {
   const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];
 
   return (
-    <div className="min-h-dvh bg-gradient-to-b from-rose-50/30 to-slate-50">
-      <div className="max-w-lg mx-auto px-5 py-6 pb-24">
+    <div className="min-h-dvh bg-taupe-50 flex flex-col items-center pt-8 pb-24">
+      <div className="w-full max-w-lg mx-auto px-5">
         <div className="mb-6">
-          <h1 className="text-2xl font-light text-slate-700 mb-4">Memory Calendar</h1>
+          <h1 className="text-2xl font-serif font-bold text-text-main mb-4">Memory Calendar</h1>
           <div className="flex flex-wrap gap-2 text-xs">
             {Object.entries(lastEntries).map(([cat, date]) => {
               const config = categoryConfig[cat];
@@ -78,8 +77,7 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-md rounded-[32px] p-6 shadow-xl shadow-rose-100/50 mb-8 border border-white">
-          <div className="flex justify-center items-center w-full">
+        <div className="w-full max-w-sm mx-auto bg-white p-6 rounded-3xl shadow-sm flex justify-center mb-8">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -91,7 +89,7 @@ export default function CalendarPage() {
                 months: "w-full",
                 month: "w-full",
                 caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
-                caption_label: "text-lg font-bold text-slate-700",
+                caption_label: "text-lg font-serif font-bold text-text-main",
                 nav: "absolute inset-0 flex items-center justify-between",
                 nav_button: "h-11 w-11 bg-transparent p-0 opacity-50 transition-opacity rounded-full flex items-center justify-center",
                 nav_button_previous: "absolute left-1",
@@ -101,7 +99,7 @@ export default function CalendarPage() {
                 head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider text-center",
                 row: "flex w-full mt-2 justify-center",
                 cell: "text-center text-sm relative p-0 w-11 sm:w-full mx-1 sm:mx-0",
-                day: "h-11 w-11 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-slate-600 hover:bg-rose-100 hover:text-rose-900 active:bg-rose-200 active:scale-95 data-[selected=true]:bg-rose-500 data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:shadow-rose-500/30 data-[selected=true]:scale-110",
+                day: "h-11 w-11 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-slate-600 data-[selected=true]:bg-rose-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:scale-110",
                 day_today: "bg-slate-100 text-slate-900 font-bold",
                 day_outside: "text-slate-300 opacity-50",
               }}
@@ -129,7 +127,7 @@ export default function CalendarPage() {
                     {isSelected && (
                         <motion.div
                             layoutId="selectedDay"
-                            className="absolute inset-0 bg-rose-500 rounded-full -z-0"
+                            className="absolute inset-0 bg-rose-primary rounded-full -z-0"
                             initial={false}
                             transition={{ type: "spring", stiffness: 500, damping: 30 }}
                         />
@@ -139,10 +137,9 @@ export default function CalendarPage() {
               }
             }}
             />
-          </div>
         </div>
 
-        <div>
+        <div className="w-full">
           <h2 className="text-sm font-medium text-slate-500 mb-4">
             {format(selectedDate, 'EEEE, MMMM d, yyyy')}
           </h2>
