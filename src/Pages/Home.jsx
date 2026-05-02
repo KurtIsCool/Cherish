@@ -13,6 +13,7 @@ import SparkWidget from '@/components/cherish/SparkWidget';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
+import { fadeIn, slideUp, staggerContainer, tapScale } from '@/lib/animations';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ export default function Home() {
 
   if (loadingPartner) {
     return (
-      <div className="min-h-screen bg-transparent p-6">
+      <div className="min-h-dvh bg-vault-cream p-6">
         <Skeleton className="h-64 w-full rounded-3xl mb-8" />
         <div className="flex justify-center gap-4 mb-8">
           {[1, 2, 3, 4, 5, 6].map(i => (
@@ -103,43 +104,48 @@ export default function Home() {
   const categories = ['dining', 'gift', 'date', 'media', 'emotion', 'conflict'];
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="max-w-md mx-auto px-5 pb-32 pt-6">
+    <div className="min-h-dvh bg-slate-50">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="max-w-md mx-auto px-5 pb-32 pt-6"
+      >
         {/* Profile Cover Card */}
-        <ProfileCover
-          partnerName={partner.partner_name}
-          startDate={partner.start_date}
-          daysTogether={daysTogether}
-        />
+        <motion.div variants={slideUp}>
+          <ProfileCover
+            partnerName={partner.partner_name}
+            startDate={partner.start_date}
+            daysTogether={daysTogether}
+          />
+        </motion.div>
 
         {/* Daily Spark Widget */}
-        <SparkWidget />
+        <motion.div variants={slideUp}>
+          <SparkWidget />
+        </motion.div>
 
         {/* Quick Actions (Floating Bubbles) */}
-        <div className="mb-8">
-          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Log a memory</h3>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-between gap-2 overflow-x-auto pb-4 no-scrollbar"
-          >
+        <motion.div variants={slideUp} className="mb-8">
+          <h3 className="font-serif text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 px-2">Log a memory</h3>
+          <div className="flex justify-between gap-2 overflow-x-auto pb-4 no-scrollbar">
             {categories.map((cat, idx) => (
-              <CategoryIcon
-                key={cat}
-                category={cat}
-                size="md"
-                onClick={() => setSelectedCategory(cat)}
-              />
+              <motion.div key={cat} variants={fadeIn} whileTap={tapScale}>
+                <CategoryIcon
+                  category={cat}
+                  size="md"
+                  onClick={() => setSelectedCategory(cat)}
+                  className="min-w-[44px] min-h-[44px] active:scale-95 transition-transform bg-gradient-to-br from-white to-vault-sand shadow-sm border border-vault-sand/50"
+                />
+              </motion.div>
             ))}
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
 
         {/* Insight Card */}
         {insight && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            variants={slideUp}
             className="mb-10"
           >
             <InsightCard 
@@ -152,25 +158,24 @@ export default function Home() {
 
         {/* Living Timeline */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          variants={slideUp}
         >
           <div className="flex items-center justify-between mb-6 px-2">
-            <h2 className="text-xl font-bold text-slate-800">Latest Moments</h2>
+            <h2 className="font-serif text-2xl font-bold text-vault-taupe">Latest Moments</h2>
             {memories?.length > 0 && (
-              <button 
+              <motion.button
+                whileTap={tapScale}
                 onClick={() => navigate(createPageUrl('Calendar'))}
-                className="text-sm font-semibold text-primary hover:text-rose-600 transition-colors bg-rose-50 px-3 py-1 rounded-full"
+                className="text-sm font-semibold text-vault-rose active:bg-vault-sand transition-colors bg-white shadow-sm border border-vault-sand/50 px-4 py-2 rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center bg-gradient-to-r from-white to-vault-sand/30"
               >
                 View Calendar
-              </button>
+              </motion.button>
             )}
           </div>
 
           <LivingTimeline memories={recentMemories} loading={loadingMemories} />
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* Quick Log Modal */}
       <QuickLogModal
