@@ -17,7 +17,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen font-sans">
-      <main className={cn(!hideNav && 'pb-24')}>
+      <main className={cn(!hideNav && 'pb-24', 'max-w-md mx-auto px-6')}>
         {children}
       </main>
 
