@@ -71,11 +71,10 @@
   * {
     @apply border-border;
   }
-  html, body {
-    @apply bg-taupe-50 text-text-main min-h-dvh;
-    /* Subtle warm background pattern (soft hearts) */
-    background-color: #F7F5F2; /* taupe-50 */
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 35c-2.5-3-6-5-9-3.5-3 1.5-3.5 5.5-1.5 8.5L30 48l10.5-8c2-3 1.5-7-1.5-8.5-3-1.5-6.5.5-9 3.5z' fill='%23D9777F' fill-opacity='0.04' fill-rule='evenodd'/%3E%3C/svg%3E");
+  body {
+    @apply bg-theme-bg text-text-main min-h-dvh;
+    /* Subtle warm gradient */
+    background: linear-gradient(to bottom right, #fdfbf7, #fdf2f8);
     background-attachment: fixed;
   }
 }
