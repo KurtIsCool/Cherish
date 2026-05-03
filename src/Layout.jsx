@@ -36,7 +36,7 @@ export default function Layout({ children, currentPageName }) {
                   className="flex flex-col items-center gap-1 relative group"
                 >
                   <div className={cn(
-                    'min-w-[44px] min-h-[44px] w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out',
+                    'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ease-out',
                     isActive
                       ? 'bg-primary/10 scale-100 shadow-sm'
                       : 'bg-transparent text-slate-400 group-hover:bg-slate-50'

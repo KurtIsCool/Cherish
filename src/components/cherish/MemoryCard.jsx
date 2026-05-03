@@ -33,8 +33,8 @@ export default function MemoryCard({ memory }) {
   const Icon = config.icon;
 
   return (
-    <button
-      className="w-full text-left bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer active:scale-[0.98] min-h-[44px]"
+    <div
+      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer active:scale-[0.98]"
       onClick={() => memory.onClick && memory.onClick(memory)}
     >
       <div className="flex items-start gap-3">
@@ -80,6 +80,6 @@ export default function MemoryCard({ memory }) {
           />
         </div>
       )}
-    </button>
+    </div>
   );
 }

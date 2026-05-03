@@ -79,80 +79,72 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="w-full flex justify-center mx-auto mb-8">
-          <div className="w-full max-w-sm bg-white p-6 rounded-3xl shadow-sm flex justify-center">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={(date) => date && setSelectedDate(date)}
-                month={currentMonth}
-                onMonthChange={setCurrentMonth}
-                className="w-full"
-                classNames={{
-                  months: "w-full",
-                  month: "w-full",
-                  caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
-                  caption_label: "text-lg font-serif font-bold text-text-main",
-                  nav: "absolute inset-0 flex items-center justify-between",
-                  nav_button: "min-h-[44px] min-w-[44px] h-11 w-11 bg-transparent p-0 opacity-50 transition-opacity rounded-full flex items-center justify-center",
-                  nav_button_previous: "absolute left-1",
-                  nav_button_next: "absolute right-1",
-                  table: "w-full border-collapse",
-                  head_row: "flex w-full mb-4",
-                  head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider text-center",
-                  row: "flex w-full mt-2 justify-center",
-                  cell: "text-center text-sm relative p-0 w-11 sm:w-full mx-1 sm:mx-0",
-                  day: "min-h-[44px] min-w-[44px] h-11 w-11 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-slate-600 data-[selected=true]:bg-rose-100 data-[selected=true]:text-rose-900 data-[selected=true]:ring-2 data-[selected=true]:ring-rose-400",
-                  day_today: "bg-slate-100 text-slate-900 font-bold",
-                  day_outside: "text-slate-300 opacity-50",
-                }}
-              components={{
-                DayButton: ({ day, ...props }) => {
-                  const date = day.date;
-                  const dateKey = format(date, 'yyyy-MM-dd');
-                  const dayMemories = memoriesByDate[dateKey] || [];
-                  const categories = [...new Set(dayMemories.map(m => m.category))];
-                  const isSelected = isSameDay(date, selectedDate);
-
-                  return (
-                    <CalendarDayButton day={day} {...props} className={cn(props.className, "relative overflow-visible")}>
-                      <span className="z-10 relative">{date.getDate()}</span>
-                      {categories.length > 0 && !isSelected && (
-                        <div className="absolute -bottom-1 flex gap-0.5">
-                          {categories.slice(0, 3).map((cat, i) => (
-                            <div
-                              key={i}
-                              className={`w-1 h-1 rounded-full ${categoryConfig[cat]?.dotColor || 'bg-slate-300'}`}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </CalendarDayButton>
-                  );
-                }
+        <div className="w-full max-w-sm mx-auto bg-white p-6 rounded-3xl shadow-sm flex justify-center mb-8">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
+              month={currentMonth}
+              onMonthChange={setCurrentMonth}
+              className="w-full"
+              classNames={{
+                months: "w-full",
+                month: "w-full",
+                caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
+                caption_label: "text-lg font-serif font-bold text-text-main",
+                nav: "absolute inset-0 flex items-center justify-between",
+                nav_button: "h-11 w-11 bg-transparent p-0 opacity-50 transition-opacity rounded-full flex items-center justify-center",
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse",
+                head_row: "flex w-full mb-4",
+                head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider text-center",
+                row: "flex w-full mt-2 justify-center",
+                cell: "text-center text-sm relative p-0 w-11 sm:w-full mx-1 sm:mx-0",
+                day: "h-11 w-11 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-slate-600 data-[selected=true]:bg-rose-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:scale-110",
+                day_today: "bg-slate-100 text-slate-900 font-bold",
+                day_outside: "text-slate-300 opacity-50",
               }}
-              />
-          </div>
+            components={{
+              DayButton: ({ day, ...props }) => {
+                const date = day.date;
+                const dateKey = format(date, 'yyyy-MM-dd');
+                const dayMemories = memoriesByDate[dateKey] || [];
+                const categories = [...new Set(dayMemories.map(m => m.category))];
+                const isSelected = isSameDay(date, selectedDate);
+                
+                return (
+                  <CalendarDayButton day={day} {...props} className={cn(props.className, "relative overflow-visible")}>
+                    <span className="z-10 relative">{date.getDate()}</span>
+                    {categories.length > 0 && !isSelected && (
+                      <div className="absolute -bottom-1 flex gap-0.5">
+                        {categories.slice(0, 3).map((cat, i) => (
+                          <div 
+                            key={i} 
+                            className={`w-1 h-1 rounded-full ${categoryConfig[cat]?.dotColor || 'bg-slate-300'}`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {isSelected && (
+                        <motion.div
+                            layoutId="selectedDay"
+                            className="absolute inset-0 bg-rose-primary rounded-full -z-0"
+                            initial={false}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
+                    )}
+                  </CalendarDayButton>
+                );
+              }
+            }}
+            />
         </div>
 
         <div className="w-full">
           <h2 className="text-sm font-medium text-slate-500 mb-4">
             {format(selectedDate, 'EEEE, MMMM d, yyyy')}
           </h2>
-
-          <div className="mb-6 bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-            <h3 className="text-sm font-medium text-slate-600 mb-4">Add a memory for this day</h3>
-            <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {categories.map((cat) => (
-                <CategoryIcon
-                    key={cat}
-                    category={cat}
-                    size="md"
-                    onClick={() => setSelectedCategory(cat)}
-                />
-                ))}
-            </div>
-          </div>
 
           {isLoading ? (
             <div className="space-y-3">
@@ -182,7 +174,21 @@ export default function CalendarPage() {
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <p className="text-slate-400">No memories on this day</p>
+                  <p className="text-slate-400 mb-6">No memories on this day</p>
+
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 className="text-sm font-medium text-slate-600 mb-4">Add a memory for this day</h3>
+                    <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
+                        {categories.map((cat) => (
+                        <CategoryIcon
+                            key={cat}
+                            category={cat}
+                            size="md"
+                            onClick={() => setSelectedCategory(cat)}
+                        />
+                        ))}
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
