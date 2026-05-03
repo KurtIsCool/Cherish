@@ -288,7 +288,7 @@ export default function Home() {
                 Daily Spark
               </p>
               <p className="text-sm text-slate-500 leading-relaxed">
-                "Write something for you partner."
+                "Write something for your partner."
               </p>
             </div>
           </button>
