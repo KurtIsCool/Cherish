@@ -11,12 +11,44 @@ import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
 import { Plus, Sparkles, Flame, Heart, Bird, Shuffle } from 'lucide-react';
 
+const LOVE_LANGUAGE_PROMPTS = [
+  // Words of Affirmation
+  "Leave a handwritten note in their bag today.",
+  "Text them something specific you appreciate about them.",
+  "Say 'I'm proud of you' after a long day.",
+  "Compliment something they don't usually notice about themselves.",
+
+  // Acts of Service
+  "Do something helpful for them without being asked.",
+  "Clean their space or organize their things.",
+  "Cook or buy their favorite meal when they're tired.",
+  "Help them with school/work tasks.",
+
+  // Receiving Gifts
+  "Give a small, meaningful surprise.",
+  "Buy their favorite snack on your way to see them.",
+  "Pick up something that reminded you of them.",
+  "Give a simple handmade item (like a drawing or playlist).",
+
+  // Quality Time
+  "Be fully present with them.",
+  "Plan a simple date (walk, movie, or coffee).",
+  "Put your phone away and just talk.",
+  "Do something they enjoy, even if it's not your favorite.",
+
+  // Physical Touch
+  "Show affection through contact.",
+  "Hold their hand while walking.",
+  "Give random hugs during the day.",
+  "Sit close or lean on them when you're together."
+];
+
 export default function Home() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [initialNotes, setInitialNotes] = useState('');
-  const [dailyPrompt, setDailyPrompt] = useState('Write something for you partner.');
+  const [dailyPrompt, setDailyPrompt] = useState('');
   const [diaryOpen, setDiaryOpen] = useState(false);
 
   const { data: partners, isPending: loadingPartner } = usePartner();
@@ -45,6 +77,20 @@ export default function Home() {
   }, [allMemories]);
 
   const partner = partners?.[0];
+
+  // Set random daily prompt on mount or refresh
+  useEffect(() => {
+    const randomPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
+    setDailyPrompt(randomPrompt);
+  }, []);
+
+  const handleShufflePrompt = () => {
+    let newPrompt;
+    do {
+      newPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
+    } while (newPrompt === dailyPrompt && LOVE_LANGUAGE_PROMPTS.length > 1);
+    setDailyPrompt(newPrompt);
+  };
 
   useEffect(() => {
     if (!loadingPartner && !partner) {
@@ -150,6 +196,13 @@ export default function Home() {
               <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
               <span>{dailyPrompt}</span>
             </div>
+            <button
+              onClick={handleShufflePrompt}
+              className="w-11 h-11 flex items-center justify-center flex-shrink-0 text-rose-400 active:scale-95 transition-all hover:bg-rose-100 rounded-full"
+              aria-label="Shuffle prompt"
+            >
+              <Shuffle className="w-4 h-4" />
+            </button>
           </div>
         </motion.div>
 
