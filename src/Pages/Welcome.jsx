@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePartner, useCreatePartner } from '@/hooks/usePartner';
+import { restoreBackup } from '@/api/backupUtils';
+import { toast } from 'sonner';
 
 export default function Welcome() {
   const navigate = useNavigate();
@@ -20,12 +22,43 @@ export default function Welcome() {
 
   const { data: partners, isPending: isLoading } = usePartner();
   const createPartner = useCreatePartner();
+  const fileInputRef = React.useRef(null);
 
   useEffect(() => {
     if (!isLoading && partners && partners.length > 0) {
       navigate(createPageUrl('Home'));
     }
   }, [partners, isLoading, navigate]);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSaving(true);
+    try {
+      const success = await restoreBackup(file);
+      if (success) {
+        toast.success('Backup restored successfully!');
+        // Small delay to ensure DB writes are fully complete before redirecting
+        setTimeout(() => {
+          navigate(createPageUrl('Home'));
+        }, 500);
+      } else {
+        toast.error('Failed to restore backup.');
+        setSaving(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('An error occurred during restore.');
+      setSaving(false);
+    }
+    // Clear input so same file can be selected again if needed
+    event.target.value = '';
+  };
 
   const handleContinue = async () => {
     if (step === 1 && partnerName.trim()) {
@@ -128,16 +161,16 @@ export default function Welcome() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="mt-8"
+          className="mt-8 flex flex-col gap-3"
         >
           <motion.button
             whileTap={{ scale: 0.97 }}
-            className="w-full"
+            className="w-full min-h-[44px]"
             onClick={handleContinue}
             disabled={(step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving}
           >
             <div
-              className={`w-full h-14 rounded-full bg-slate-800 text-white font-sans font-medium text-base shadow-sm flex items-center justify-center transition-colors ${((step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'}`}
+              className={`w-full h-14 min-h-[44px] rounded-full bg-slate-800 text-white font-sans font-medium text-base shadow-sm flex items-center justify-center transition-colors ${((step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'}`}
             >
               {saving ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -149,6 +182,21 @@ export default function Welcome() {
               )}
             </div>
           </motion.button>
+
+          <button
+            onClick={handleImportClick}
+            disabled={saving}
+            className="text-slate-500 hover:text-slate-700 text-sm font-medium min-h-[44px] flex items-center justify-center transition-colors disabled:opacity-50"
+          >
+            Already have a vault? Import data
+          </button>
+          <input
+            type="file"
+            accept=".json"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
         </motion.div>
 
         <div className="flex items-center justify-center gap-2 mt-8">
