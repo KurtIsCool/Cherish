@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Heart, CalendarDays, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { restoreBackup } from '@/api/backupUtils';
 import { createPageUrl } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePartner, useCreatePartner } from '@/hooks/usePartner';
@@ -17,6 +19,7 @@ export default function Welcome() {
   const [partnerName, setPartnerName] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef(null);
 
   const { data: partners, isPending: isLoading } = usePartner();
   const createPartner = useCreatePartner();
@@ -42,6 +45,45 @@ export default function Welcome() {
       });
       navigate(createPageUrl('Home'));
     }
+  };
+
+
+  const handleImport = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const text = e.target.result;
+        const parsedData = JSON.parse(text);
+
+        // Validation (Crucial)
+        if (!parsedData || !parsedData.data || (!parsedData.data.partners && !parsedData.data.memories && !parsedData.data.vaultItems)) {
+          throw new Error('Invalid backup file');
+        }
+
+        // Database Injection: Call the IndexedDB restore function
+        // Note: Our restoreBackup expects a File object rather than parsedData
+        const success = await restoreBackup(file);
+
+        if (success) {
+          toast.success("Welcome back! Vault restored.");
+          navigate(createPageUrl('Home'));
+        } else {
+          throw new Error('Failed to restore backup');
+        }
+      } catch (error) {
+        console.error('Import error:', error);
+        toast.error("Invalid backup file");
+      }
+
+      // Reset input so the same file can be selected again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsText(file);
   };
 
   if (isLoading) return null;
@@ -149,6 +191,21 @@ export default function Welcome() {
               )}
             </div>
           </motion.button>
+
+          {/* Import Data Mechanism */}
+          <input
+            type="file"
+            accept=".json"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleImport}
+          />
+          <button
+            className="text-sm text-slate-400 hover:text-rose-400 transition-colors mt-6 bg-transparent border-none w-full text-center"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Already have a vault? Import backup
+          </button>
         </motion.div>
 
         <div className="flex items-center justify-center gap-2 mt-8">
