@@ -54,13 +54,26 @@ export default function Home() {
   const { data: partners, isPending: loadingPartner } = usePartner();
   const { data: allMemories, isPending: loadingMemories } = useMemories();
 
-  const memories = useMemo(() => {
+  const regularMemories = useMemo(() => {
     if (!allMemories) return null;
-    return [...allMemories].sort((a, b) => {
-      const valA = a['memory_date'] ?? '';
-      const valB = b['memory_date'] ?? '';
-      return valA < valB ? 1 : (valA > valB ? -1 : 0);
-    });
+    return allMemories
+      .filter((m) => m.category !== 'diary')
+      .sort((a, b) => {
+        const valA = a['memory_date'] ?? '';
+        const valB = b['memory_date'] ?? '';
+        return valA < valB ? 1 : (valA > valB ? -1 : 0);
+      });
+  }, [allMemories]);
+
+  const diaryMemories = useMemo(() => {
+    if (!allMemories) return null;
+    return allMemories
+      .filter((m) => m.category === 'diary')
+      .sort((a, b) => {
+        const valA = a['memory_date'] ?? '';
+        const valB = b['memory_date'] ?? '';
+        return valA < valB ? 1 : (valA > valB ? -1 : 0);
+      });
   }, [allMemories]);
 
   const partner = partners?.[0];
@@ -85,7 +98,8 @@ export default function Home() {
     }
   }, [loadingPartner, partner, navigate]);
 
-  const latestMemory = memories?.[0];
+  const latestMemory = regularMemories?.[0];
+  const latestDiary = diaryMemories?.[0];
 
   useEffect(() => {
     let url = null;
@@ -256,7 +270,7 @@ export default function Home() {
         {/* The Spark Prompt */}
         <motion.div variants={slideUp} className="w-full">
           <button
-            onClick={() => setSelectedCategory('emotion')}
+            onClick={() => handlePulseClick(dailyPrompt)}
             className="w-full bg-white shadow-sm rounded-2xl p-5 flex items-start gap-3 hover:shadow-md transition-shadow text-left"
           >
             <div className="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center flex-shrink-0">
@@ -278,7 +292,7 @@ export default function Home() {
                 Daily Spark
               </p>
               <p className="text-sm text-slate-500 leading-relaxed">
-                "What's one thing they did this week that made you smile?"
+                "{dailyPrompt}"
               </p>
             </div>
           </button>
@@ -304,6 +318,23 @@ export default function Home() {
                 </p>
                 <p className="text-xs text-slate-400 mt-2 uppercase tracking-wide">
                   {latestMemory.memory_date}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Latest Diary */}
+        {latestDiary && (
+          <motion.div variants={slideUp} className="w-full mt-4">
+            <h3 className="font-serif text-xl font-bold text-text-main mb-4">Latest Diary</h3>
+            <div className="bg-white rounded-xl shadow-md p-4 pb-6 transform -rotate-1">
+              <div className="px-2">
+                <p className="font-serif text-lg text-text-main leading-snug line-clamp-3">
+                  {latestDiary.notes || "A thoughtful entry."}
+                </p>
+                <p className="text-xs text-slate-400 mt-4 uppercase tracking-wide">
+                  {latestDiary.memory_date}
                 </p>
               </div>
             </div>
