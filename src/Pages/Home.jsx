@@ -8,7 +8,7 @@ import QuickLogModal from '@/components/cherish/QuickLogModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
-import { Plus, Sparkles, Flame, Heart, Bird } from 'lucide-react';
+import { Plus, Sparkles, Flame, Heart, Bird, Shuffle } from 'lucide-react';
 
 const LOVE_LANGUAGE_PROMPTS = [
   // Words of Affirmation
@@ -68,6 +68,14 @@ export default function Home() {
     const randomPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
     setDailyPrompt(randomPrompt);
   }, []);
+
+  const handleShufflePrompt = () => {
+    let newPrompt;
+    do {
+      newPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
+    } while (newPrompt === dailyPrompt && LOVE_LANGUAGE_PROMPTS.length > 1);
+    setDailyPrompt(newPrompt);
+  };
 
   useEffect(() => {
     if (!loadingPartner && !partner) {
@@ -167,9 +175,18 @@ export default function Home() {
 
         {/* The Hyper-Personalized Whisper */}
         <motion.div variants={slideUp} className="w-full">
-          <div className="bg-rose-50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-start gap-2.5">
-            <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
-            <span>{dailyPrompt}</span>
+          <div className="bg-rose-50 text-rose-900 text-sm italic pl-4 pr-1 py-1 rounded-2xl flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
+              <span>{dailyPrompt}</span>
+            </div>
+            <button
+              onClick={handleShufflePrompt}
+              className="w-11 h-11 flex items-center justify-center flex-shrink-0 text-rose-400 active:scale-95 transition-all hover:bg-rose-100 rounded-full"
+              aria-label="Shuffle prompt"
+            >
+              <Shuffle className="w-4 h-4" />
+            </button>
           </div>
         </motion.div>
 
