@@ -26,12 +26,13 @@ export async function exportBackup() {
         return Promise.all(items.map(async item => {
             const serialized = { ...item };
             for (const key of Object.keys(serialized)) {
-                if (serialized[key] instanceof Blob) {
+                const val = serialized[key];
+                if (val && typeof val === 'object' && typeof val.slice === 'function' && typeof val.size === 'number' && typeof val.type === 'string') {
                     serialized[key] = {
                         _type: 'blob',
-                        _data: await blobToBase64(serialized[key]),
-                        _mime: serialized[key].type,
-                        _name: serialized[key].name // For File instances
+                        _data: await blobToBase64(val),
+                        _mime: val.type,
+                        _name: val.name // For File instances
                     };
                 }
             }
@@ -60,12 +61,19 @@ export async function exportBackup() {
     if (navigator.share && navigator.canShare) {
       const file = new File([blob], `cherish_backup_${Date.now()}.json`, { type: 'application/json' });
       if (navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: 'Cherish Backup',
-          text: 'Here is your Cherish offline data backup.',
-          files: [file]
-        });
-        return true;
+        try {
+          await navigator.share({
+            title: 'Cherish Backup',
+            text: 'Here is your Cherish offline data backup.',
+            files: [file]
+          });
+          return true;
+        } catch (err) {
+          if (err.name === 'AbortError') {
+            return false;
+          }
+          console.warn('Share failed, falling back to download:', err);
+        }
       }
     }
 
