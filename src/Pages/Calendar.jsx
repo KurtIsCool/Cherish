@@ -8,12 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
+import MemoryViewModal from '@/components/cherish/MemoryViewModal';
 
 export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [quickLogOpen, setQuickLogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [viewingMemory, setViewingMemory] = useState(null);
 
   const { data: allMemories, isPending: isLoading } = useMemories();
 
@@ -160,7 +162,10 @@ export default function CalendarPage() {
                   className="space-y-3"
                 >
                   {selectedMemories.map((memory) => (
-                    <MemoryCard key={memory.id} memory={memory} />
+                    <MemoryCard
+                      key={memory.id}
+                      memory={{...memory, onClick: setViewingMemory}}
+                    />
                   ))}
                 </motion.div>
               ) : (
@@ -198,6 +203,12 @@ export default function CalendarPage() {
         category={selectedCategory}
         onSave={handleCategorySave}
         defaultDate={selectedDate}
+      />
+
+      <MemoryViewModal
+        open={!!viewingMemory}
+        onClose={() => setViewingMemory(null)}
+        memory={viewingMemory}
       />
     </div>
   );

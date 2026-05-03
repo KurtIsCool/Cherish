@@ -33,7 +33,10 @@ export default function MemoryCard({ memory }) {
   const Icon = config.icon;
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md">
+    <div
+      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 transition-all hover:shadow-md cursor-pointer active:scale-[0.98]"
+      onClick={() => memory.onClick && memory.onClick(memory)}
+    >
       <div className="flex items-start gap-3">
         {/* Category Icon Box */}
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${config.color}`}>
