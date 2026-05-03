@@ -71,11 +71,12 @@
   * {
     @apply border-border;
   }
+  html, body, #root {
+    @apply bg-taupe-50;
+    overscroll-behavior-y: none;
+  }
   body {
-    @apply bg-theme-bg text-text-main min-h-dvh;
-    /* Subtle warm gradient */
-    background: linear-gradient(to bottom right, #fdfbf7, #fdf2f8);
-    background-attachment: fixed;
+    @apply text-text-main min-h-dvh;
   }
 }
 

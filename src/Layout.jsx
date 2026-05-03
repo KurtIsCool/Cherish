@@ -16,7 +16,16 @@ export default function Layout({ children, currentPageName }) {
   ];
 
   return (
-    <div className="min-h-screen font-sans">
+    <div className="min-h-screen font-sans relative">
+      {/* Subtle Premium Pattern Background */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.03] z-[-1]"
+        style={{
+          backgroundImage: "url('data:image/svg+xml,%3Csvg width=\\'80\\' height=\\'80\\' viewBox=\\'0 0 80 80\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cg fill=\\'%23D9777F\\' fill-opacity=\\'1\\'%3E%3Cpath d=\\'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\\' transform=\\'scale(0.4) translate(20, 20)\\'/%3E%3Cpath d=\\'M12 2L14 9L21 11L14 13L12 20L10 13L3 11L10 9L12 2Z\\' transform=\\'scale(0.4) translate(120, 60)\\'/%3E%3Cpath d=\\'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z\\' transform=\\'scale(0.3) translate(160, 150)\\'/%3E%3Cpath d=\\'M12 2L13 8L19 9L13 10L12 16L11 10L5 9L11 8L12 2Z\\' transform=\\'scale(0.4) translate(40, 140)\\'/%3E%3C/g%3E%3C/svg%3E')",
+          backgroundSize: '80px 80px'
+        }}
+      />
+
       <main className={cn(!hideNav && 'pb-24', 'max-w-md mx-auto px-6')}>
         {children}
       </main>
