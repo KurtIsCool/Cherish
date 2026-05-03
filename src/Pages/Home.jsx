@@ -5,6 +5,7 @@ import { useMemories } from '@/hooks/useMemories';
 import { createPageUrl } from '@/lib/utils';
 import { differenceInDays, differenceInMonths } from 'date-fns';
 import QuickLogModal from '@/components/cherish/QuickLogModal';
+import DiaryModal from '@/components/cherish/DiaryModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
@@ -48,6 +49,8 @@ export default function Home() {
   const [photoUrl, setPhotoUrl] = useState(null);
   const [initialNotes, setInitialNotes] = useState('');
   const [dailyPrompt, setDailyPrompt] = useState('');
+  const [isDiaryOpen, setIsDiaryOpen] = useState(false);
+  const [diaryInitialText, setDiaryInitialText] = useState('');
 
   const { data: partners, isPending: loadingPartner } = usePartner();
   const { data: allMemories, isPending: loadingMemories } = useMemories();
@@ -119,8 +122,8 @@ export default function Home() {
   };
 
   const handlePulseClick = (note) => {
-    setInitialNotes(note);
-    setSelectedCategory('emotion');
+    setDiaryInitialText(note);
+    setIsDiaryOpen(true);
   };
 
   if (loadingPartner || loadingMemories) {
@@ -330,6 +333,17 @@ export default function Home() {
         category={selectedCategory || 'emotion'}
         onSave={handleCategorySave}
         initialNotes={initialNotes}
+      />
+
+      {/* Diary Modal */}
+      <DiaryModal
+        open={isDiaryOpen}
+        onClose={() => {
+          setIsDiaryOpen(false);
+          setDiaryInitialText('');
+        }}
+        initialText={diaryInitialText}
+        onSave={handleCategorySave}
       />
     </div>
   );

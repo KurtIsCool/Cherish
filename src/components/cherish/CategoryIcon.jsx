@@ -1,5 +1,5 @@
 import React from 'react';
-import { Utensils, Gift, MapPin, Film, Heart, Cloud } from 'lucide-react';
+import { Utensils, Gift, MapPin, Film, Heart, Cloud, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils'; // Updated to use the new utils file
 
 export const categoryConfig = {
@@ -38,6 +38,12 @@ export const categoryConfig = {
     label: 'Reflect', 
     color: 'bg-slate-100 text-slate-500',
     dotColor: 'bg-slate-400'
+  },
+  diary: {
+    icon: BookOpen,
+    label: 'Diary',
+    color: 'bg-indigo-50 text-indigo-500',
+    dotColor: 'bg-indigo-400'
   }
 };
 
