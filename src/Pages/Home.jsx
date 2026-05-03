@@ -218,8 +218,8 @@ export default function Home() {
             >
               <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-rose-50 transition-colors">
                 <svg
-                  className="w-7 h-7 text-rose-400"
-                  viewBox="0 0 600 555"
+                  className="w-8 h-8 text-rose-400"
+                  viewBox="119.22999999999999 113.45 368.94000000000005 320.1"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -263,8 +263,8 @@ export default function Home() {
             >
               <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-blue-50 transition-colors">
                 <svg
-                  className="w-7 h-7 text-blue-400"
-                  viewBox="0 0 600 555"
+                  className="w-8 h-8 text-blue-400"
+                  viewBox="86.58000000000001 109.185 425.03999999999996 347.93"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -296,8 +296,8 @@ export default function Home() {
             >
               <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-orange-50 transition-colors">
                 <svg
-                  className="w-7 h-7 text-orange-500"
-                  viewBox="0 0 600 555"
+                  className="w-8 h-8 text-orange-500"
+                  viewBox="112.07000000000002 66.60999999999997 376.86 424.38"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
                 >
@@ -334,8 +334,8 @@ export default function Home() {
             >
               <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm hover:bg-pink-50 transition-colors">
                 <svg
-                  className="w-7 h-7 text-pink-500"
-                  viewBox="0 0 600 555"
+                  className="w-8 h-8 text-pink-500"
+                  viewBox="191.79500000000002 83.65999999999995 255.31 388.0800000000001"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
                 >
