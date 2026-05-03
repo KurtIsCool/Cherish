@@ -12,7 +12,35 @@ import { staggerContainer, slideUp } from '@/lib/animations';
 import { Plus, Sparkles, Flame, Heart, Bird, Shuffle } from 'lucide-react';
 
 const LOVE_LANGUAGE_PROMPTS = [
-  "Write something for you partner."
+  // Words of Affirmation
+  "Leave a handwritten note in their bag today.",
+  "Text them something specific you appreciate about them.",
+  "Say 'I'm proud of you' after a long day.",
+  "Compliment something they don't usually notice about themselves.",
+
+  // Acts of Service
+  "Do something helpful for them without being asked.",
+  "Clean their space or organize their things.",
+  "Cook or buy their favorite meal when they're tired.",
+  "Help them with school/work tasks.",
+
+  // Receiving Gifts
+  "Give a small, meaningful surprise.",
+  "Buy their favorite snack on your way to see them.",
+  "Pick up something that reminded you of them.",
+  "Give a simple handmade item (like a drawing or playlist).",
+
+  // Quality Time
+  "Be fully present with them.",
+  "Plan a simple date (walk, movie, or coffee).",
+  "Put your phone away and just talk.",
+  "Do something they enjoy, even if it's not your favorite.",
+
+  // Physical Touch
+  "Show affection through contact.",
+  "Hold their hand while walking.",
+  "Give random hugs during the day.",
+  "Sit close or lean on them when you're together."
 ];
 
 export default function Home() {
@@ -242,7 +270,7 @@ export default function Home() {
         {/* The Spark Prompt */}
         <motion.div variants={slideUp} className="w-full">
           <button
-            onClick={() => handlePulseClick('')}
+            onClick={() => handlePulseClick(dailyPrompt)}
             className="w-full bg-white shadow-sm rounded-2xl p-5 flex items-start gap-3 hover:shadow-md transition-shadow text-left"
           >
             <div className="w-10 h-10 bg-rose-50 rounded-full flex items-center justify-center flex-shrink-0">
