@@ -8,34 +8,38 @@ import { Heart, CalendarDays, ArrowRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { restoreBackup } from '@/api/backupUtils';
 import { createPageUrl } from '@/lib/utils';
+import { queryKeys } from '@/api/queryKeys';
 import { motion } from 'framer-motion';
 import { usePartner, useCreatePartner } from '@/hooks/usePartner';
 
 export default function Welcome() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [partnerName, setPartnerName] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   const fileInputRef = useRef(null);
 
   const { data: partners, isPending: isLoading } = usePartner();
   const createPartner = useCreatePartner();
 
   useEffect(() => {
-    if (!isLoading && partners && partners.length > 0) {
+    if (!isLoading && partners && partners.length > 0 && !importing) {
       navigate(createPageUrl('Home'));
     }
-  }, [partners, isLoading, navigate]);
+  }, [partners, isLoading, importing, navigate]);
 
   const handleContinue = async () => {
     if (step === 1 && partnerName.trim()) {
       setStep(2);
       return;
     }
-    
+
     if (step === 2 && startDate) {
       setSaving(true);
       await createPartner.mutateAsync({
@@ -47,28 +51,31 @@ export default function Welcome() {
     }
   };
 
-
   const handleImport = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = async (e) => {
+      setImporting(true);
       try {
         const text = e.target.result;
         const parsedData = JSON.parse(text);
 
-        // Validation (Crucial)
-        if (!parsedData || !parsedData.data || (!parsedData.data.partners && !parsedData.data.memories && !parsedData.data.vaultItems)) {
+        if (
+          !parsedData?.data ||
+          (!parsedData.data.partners &&
+            !parsedData.data.memories &&
+            !parsedData.data.vaultItems)
+        ) {
           throw new Error('Invalid backup file');
         }
 
-        // Database Injection: Call the IndexedDB restore function
-        // Note: Our restoreBackup expects a File object rather than parsedData
         const success = await restoreBackup(file);
 
         if (success) {
           toast.success("Welcome back! Vault restored.");
+          await queryClient.invalidateQueries({ queryKey: queryKeys.partner.all });
           navigate(createPageUrl('Home'));
         } else {
           throw new Error('Failed to restore backup');
@@ -76,11 +83,9 @@ export default function Welcome() {
       } catch (error) {
         console.error('Import error:', error);
         toast.error("Invalid backup file");
-      }
-
-      // Reset input so the same file can be selected again if needed
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      } finally {
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
     };
     reader.readAsText(file);
@@ -90,7 +95,7 @@ export default function Welcome() {
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center bg-taupe-50 px-6 font-sans">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -109,7 +114,7 @@ export default function Welcome() {
         {/* Step 1: Partner Name */}
         <motion.div
           initial={false}
-          animate={{ 
+          animate={{
             opacity: step === 1 ? 1 : 0,
             height: step === 1 ? 'auto' : 0,
             overflow: 'hidden'
@@ -118,7 +123,9 @@ export default function Welcome() {
         >
           <div className="space-y-6 text-center">
             <div className="space-y-4">
-              <Label className="text-text-main text-2xl font-serif font-normal block">Who holds your heart?</Label>
+              <Label className="text-text-main text-2xl font-serif font-normal block">
+                Who holds your heart?
+              </Label>
               <Input
                 value={partnerName}
                 onChange={(e) => setPartnerName(e.target.value)}
@@ -132,7 +139,7 @@ export default function Welcome() {
         {/* Step 2: Anniversary Date */}
         <motion.div
           initial={false}
-          animate={{ 
+          animate={{
             opacity: step === 2 ? 1 : 0,
             height: step === 2 ? 'auto' : 0,
             overflow: 'hidden'
@@ -141,11 +148,13 @@ export default function Welcome() {
         >
           <div className="space-y-6 text-center">
             <div className="space-y-4">
-              <Label className="text-text-main text-2xl font-serif font-normal block">When did your journey begin?</Label>
+              <Label className="text-text-main text-2xl font-serif font-normal block">
+                When did your journey begin?
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="w-full h-14 p-4 bg-theme-bg rounded-2xl border-none shadow-sm text-lg font-sans font-normal hover:bg-theme-bg focus:ring-2 focus:ring-rose-primary/50"
                   >
                     <CalendarDays className="mr-3 h-5 w-5 text-slate-400" />
@@ -176,10 +185,20 @@ export default function Welcome() {
             whileTap={{ scale: 0.97 }}
             className="w-full"
             onClick={handleContinue}
-            disabled={(step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving}
+            disabled={
+              (step === 1 && !partnerName.trim()) ||
+              (step === 2 && !startDate) ||
+              saving
+            }
           >
             <div
-              className={`w-full h-14 rounded-full bg-slate-800 text-white font-sans font-medium text-base shadow-sm flex items-center justify-center transition-colors ${((step === 1 && !partnerName.trim()) || (step === 2 && !startDate) || saving) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700'}`}
+              className={`w-full h-14 rounded-full bg-slate-800 text-white font-sans font-medium text-base shadow-sm flex items-center justify-center transition-colors ${
+                (step === 1 && !partnerName.trim()) ||
+                (step === 2 && !startDate) ||
+                saving
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-slate-700'
+              }`}
             >
               {saving ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -201,10 +220,18 @@ export default function Welcome() {
             onChange={handleImport}
           />
           <button
-            className="text-sm text-slate-400 hover:text-rose-400 transition-colors mt-6 bg-transparent border-none w-full text-center"
+            className="text-sm text-slate-400 hover:text-rose-400 transition-colors mt-6 bg-transparent border-none w-full text-center disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
           >
-            Already have a vault? Import backup
+            {importing ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Restoring vault...
+              </span>
+            ) : (
+              'Already have a vault? Import backup'
+            )}
           </button>
         </motion.div>
 
