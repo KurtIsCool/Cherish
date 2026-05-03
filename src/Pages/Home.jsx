@@ -9,13 +9,45 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
 import { Plus, Sparkles, Flame, Heart, Bird } from 'lucide-react';
-import { toast } from 'sonner';
+
+const LOVE_LANGUAGE_PROMPTS = [
+  // Words of Affirmation
+  "Leave a handwritten note in their bag today.",
+  "Text them something specific you appreciate about them.",
+  "Say 'I'm proud of you' after a long day.",
+  "Compliment something they don't usually notice about themselves.",
+
+  // Acts of Service
+  "Do something helpful for them without being asked.",
+  "Clean their space or organize their things.",
+  "Cook or buy their favorite meal when they're tired.",
+  "Help them with school/work tasks.",
+
+  // Receiving Gifts
+  "Give a small, meaningful surprise.",
+  "Buy their favorite snack on your way to see them.",
+  "Pick up something that reminded you of them.",
+  "Give a simple handmade item (like a drawing or playlist).",
+
+  // Quality Time
+  "Be fully present with them.",
+  "Plan a simple date (walk, movie, or coffee).",
+  "Put your phone away and just talk.",
+  "Do something they enjoy, even if it's not your favorite.",
+
+  // Physical Touch
+  "Show affection through contact.",
+  "Hold their hand while walking.",
+  "Give random hugs during the day.",
+  "Sit close or lean on them when you're together."
+];
 
 export default function Home() {
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
-  const [quickLogData, setQuickLogData] = useState(null);
+  const [initialNotes, setInitialNotes] = useState('');
+  const [dailyPrompt, setDailyPrompt] = useState('');
 
   const { data: partners, isPending: loadingPartner } = usePartner();
   const { data: allMemories, isPending: loadingMemories } = useMemories();
@@ -30,6 +62,12 @@ export default function Home() {
   }, [allMemories]);
 
   const partner = partners?.[0];
+
+  // Set random daily prompt on mount or refresh
+  useEffect(() => {
+    const randomPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
+    setDailyPrompt(randomPrompt);
+  }, []);
 
   useEffect(() => {
     if (!loadingPartner && !partner) {
@@ -72,8 +110,8 @@ export default function Home() {
     // Left empty as mutations now handle invalidation
   };
 
-  const handlePulseClick = (feeling, note) => {
-    setQuickLogData({ feeling, note });
+  const handlePulseClick = (note) => {
+    setInitialNotes(note);
     setSelectedCategory('emotion');
   };
 
@@ -131,7 +169,7 @@ export default function Home() {
         <motion.div variants={slideUp} className="w-full">
           <div className="bg-rose-50 text-rose-900 text-sm italic py-3 px-4 rounded-2xl flex items-center justify-start gap-2.5">
             <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
-            <span>Words of affirmation: Leave a handwritten note in their bag today.</span>
+            <span>{dailyPrompt}</span>
           </div>
         </motion.div>
 
@@ -144,7 +182,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => handlePulseClick('butterflies', 'I feel butterflies because of my partner')}
+              onClick={() => handlePulseClick('I feel butterflies because of my partner')}
               className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-rose-400 hover:bg-rose-50 transition-colors"
               aria-label="I feel butterflies"
             >
@@ -167,7 +205,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => handlePulseClick('peaceful', 'I\'m peaceful because of my partner')}
+              onClick={() => handlePulseClick("I'm peaceful because of my partner")}
               className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-400 hover:bg-blue-50 transition-colors"
               aria-label="I feel peaceful"
             >
@@ -177,7 +215,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => handlePulseClick('passionate', 'I feel passionate about my partner')}
+              onClick={() => handlePulseClick('I feel passionate about my partner')}
               className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-orange-500 hover:bg-orange-50 transition-colors"
               aria-label="I feel passionate"
             >
@@ -187,7 +225,7 @@ export default function Home() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => handlePulseClick('missing', 'I miss my partner')}
+              onClick={() => handlePulseClick('I miss my partner')}
               className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-pink-500 hover:bg-pink-50 transition-colors"
               aria-label="I miss you"
             >
@@ -270,11 +308,11 @@ export default function Home() {
         open={!!selectedCategory}
         onClose={() => {
           setSelectedCategory(null);
-          setQuickLogData(null);
+          setInitialNotes('');
         }}
         category={selectedCategory || 'emotion'}
         onSave={handleCategorySave}
-        initialData={quickLogData}
+        initialNotes={initialNotes}
       />
     </div>
   );
