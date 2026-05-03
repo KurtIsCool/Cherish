@@ -9,7 +9,7 @@ import DiaryModal from '@/components/cherish/DiaryModal';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { staggerContainer, slideUp } from '@/lib/animations';
-import { Plus, Sparkles, Flame, Heart, Bird, Shuffle } from 'lucide-react';
+import { Plus, Sparkles, Shuffle } from 'lucide-react';
 
 const LOVE_LANGUAGE_PROMPTS = [
   // Words of Affirmation
@@ -207,58 +207,111 @@ export default function Home() {
           <h3 className="font-serif text-lg font-semibold text-text-main mb-4">
             How are you feeling right now?
           </h3>
-          <div className="flex flex-row justify-center gap-3 w-full">
+          <div className="flex flex-row justify-center gap-4 w-full">
+            {/* Butterflies/Giddy */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => handlePulseClick('I feel butterflies because of my partner')}
-              className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-rose-400 hover:bg-rose-50 transition-colors"
+              className="flex flex-col items-center gap-2"
               aria-label="I feel butterflies"
             >
-              <svg
-                className="w-6 h-6"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
-                <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
-                <path d="M15 13h.01" />
-                <path d="M9 13h.01" />
-              </svg>
+              <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-rose-400 hover:bg-rose-50 transition-colors">
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+                  <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+                  <path d="M15 13h.01" />
+                  <path d="M9 13h.01" />
+                </svg>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Giddy</span>
             </motion.button>
 
+            {/* Peaceful */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => handlePulseClick("I'm peaceful because of my partner")}
-              className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-400 hover:bg-blue-50 transition-colors"
+              className="flex flex-col items-center gap-2"
               aria-label="I feel peaceful"
             >
-              <Bird className="w-6 h-6" />
+              <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-400 hover:bg-blue-50 transition-colors">
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                  <path d="M2 8h16l-1.5 8.5A2 2 0 0 1 14.5 18H9.5a2 2 0 0 1-2-1.5L6 8" />
+                  <path d="M6 8V7a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3v1" />
+                  <path d="M15 8V7a3 3 0 0 1 3-3h0a3 3 0 0 1 3 3v1" />
+                </svg>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Peaceful</span>
             </motion.button>
 
+            {/* Passionate */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => handlePulseClick('I feel passionate about my partner')}
-              className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-orange-500 hover:bg-orange-50 transition-colors"
+              className="flex flex-col items-center gap-2"
               aria-label="I feel passionate"
             >
-              <Flame className="w-6 h-6" />
+              <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-orange-500 hover:bg-orange-50 transition-colors">
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                  <path d="M12 6c0-1.5.5-2 1.5-2S15 4.5 15 6s-.5 3-1.5 3-3-1-3-3" />
+                  <path d="M12 13l-1-1" />
+                  <path d="M12 18l-1-1" />
+                </svg>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Passionate</span>
             </motion.button>
 
+            {/* Missing you */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => handlePulseClick('I miss my partner')}
-              className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-pink-500 hover:bg-pink-50 transition-colors"
+              className="flex flex-col items-center gap-2"
               aria-label="I miss you"
             >
-              <Heart className="w-6 h-6" />
+              <div className="w-14 h-14 flex items-center justify-center bg-white rounded-full shadow-sm text-pink-500 hover:bg-pink-50 transition-colors">
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 2a10 10 0 0 0-6.8 2.7L2 8h6V2L5.2 4.8A8 8 0 1 1 4 12H2a10 10 0 0 0 10 10z" />
+                  <path d="M14 6v6l4 2" />
+                </svg>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">Missing</span>
             </motion.button>
           </div>
         </motion.div>
@@ -288,7 +341,7 @@ export default function Home() {
                 Daily Spark
               </p>
               <p className="text-sm text-slate-500 leading-relaxed">
-                "Write something for your partner."
+                "Write something for you partner."
               </p>
             </div>
           </button>
