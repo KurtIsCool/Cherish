@@ -12,7 +12,27 @@ import { staggerContainer, slideUp } from '@/lib/animations';
 import { Plus, Sparkles, Flame, Heart, Bird, Shuffle } from 'lucide-react';
 
 const LOVE_LANGUAGE_PROMPTS = [
-  "Write something for you partner."
+  // Words of Affirmation, Acts of Service, Receiving Gifts, Quality Time, Physical Touch (Interleaved)
+  "Leave a handwritten note in their bag today.",
+  "Do something helpful for them without being asked.",
+  "Give a small, meaningful surprise.",
+  "Be fully present with them.",
+  "Show affection through contact.",
+  "Text them something specific you appreciate about them.",
+  "Clean their space or organize their things.",
+  "Buy their favorite snack on your way to see them.",
+  "Plan a simple date (walk, movie, or coffee).",
+  "Hold their hand while walking.",
+  "Say 'I'm proud of you' after a long day.",
+  "Cook or buy their favorite meal when they're tired.",
+  "Pick up something that reminded you of them.",
+  "Put your phone away and just talk.",
+  "Give random hugs during the day.",
+  "Compliment something they don't usually notice about themselves.",
+  "Help them with school/work tasks.",
+  "Give a simple handmade item (like a drawing or playlist).",
+  "Do something they enjoy, even if it's not your favorite.",
+  "Sit close or lean on them when you're together."
 ];
 
 export default function Home() {
@@ -20,8 +40,9 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [photoUrl, setPhotoUrl] = useState(null);
   const [initialNotes, setInitialNotes] = useState('');
-  const [dailyPrompt, setDailyPrompt] = useState('');
+  const [promptIndex, setPromptIndex] = useState(0);
   const [diaryOpen, setDiaryOpen] = useState(false);
+  const dailyPrompt = LOVE_LANGUAGE_PROMPTS[promptIndex] || '';
 
   const { data: partners, isPending: loadingPartner } = usePartner();
   const { data: allMemories, isPending: loadingMemories } = useMemories();
@@ -52,16 +73,11 @@ export default function Home() {
 
   // Set random daily prompt on mount or refresh
   useEffect(() => {
-    const randomPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
-    setDailyPrompt(randomPrompt);
+    setPromptIndex(Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length));
   }, []);
 
   const handleShufflePrompt = () => {
-    let newPrompt;
-    do {
-      newPrompt = LOVE_LANGUAGE_PROMPTS[Math.floor(Math.random() * LOVE_LANGUAGE_PROMPTS.length)];
-    } while (newPrompt === dailyPrompt && LOVE_LANGUAGE_PROMPTS.length > 1);
-    setDailyPrompt(newPrompt);
+    setPromptIndex((prev) => (prev + 1) % LOVE_LANGUAGE_PROMPTS.length);
   };
 
   useEffect(() => {
