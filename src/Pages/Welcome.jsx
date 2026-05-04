@@ -75,7 +75,7 @@ export default function Welcome() {
 
         if (success) {
           toast.success("Welcome back! Vault restored.");
-          await queryClient.invalidateQueries({ queryKey: queryKeys.partner.all });
+          await queryClient.resetQueries();
           navigate(createPageUrl('Home'));
         } else {
           throw new Error('Failed to restore backup');
