@@ -79,30 +79,31 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-sm mx-auto bg-white p-6 rounded-3xl shadow-sm flex justify-center mb-8">
+        <div className="w-full max-w-sm mx-auto bg-white p-6 rounded-3xl shadow-sm flex flex-col items-center justify-center mb-8">
             <Calendar
               mode="single"
               selected={selectedDate}
               onSelect={(date) => date && setSelectedDate(date)}
               month={currentMonth}
               onMonthChange={setCurrentMonth}
-              className="w-full"
+              className="w-full flex flex-col items-center justify-center"
               classNames={{
-                months: "w-full",
-                month: "w-full",
-                caption: "relative flex items-center justify-center pt-1 pb-6 mb-2",
+                months: "w-full flex flex-col items-center justify-center",
+                month: "w-full flex flex-col items-center justify-center",
+                caption: "relative flex items-center justify-center pt-1 pb-6 mb-2 w-full",
                 caption_label: "text-lg font-serif font-bold text-text-main",
                 nav: "absolute inset-0 flex items-center justify-between",
                 nav_button: "h-11 w-11 bg-transparent p-0 opacity-50 transition-opacity rounded-full flex items-center justify-center",
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
-                table: "w-full border-collapse",
-                head_row: "flex w-full mb-4",
-                head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider text-center",
-                row: "flex w-full mt-2 justify-center",
-                cell: "text-center text-sm relative p-0 w-11 sm:w-full mx-1 sm:mx-0",
-                day: "h-11 w-11 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-slate-600 data-[selected=true]:bg-rose-primary data-[selected=true]:text-white data-[selected=true]:shadow-lg data-[selected=true]:scale-110",
-                day_today: "bg-slate-100 text-slate-900 font-bold",
+                table: "w-full max-w-[320px] mx-auto border-collapse",
+                head_row: "flex w-full mb-4 justify-between",
+                head_cell: "text-slate-400 w-full font-bold text-[10px] uppercase tracking-wider text-center flex-1",
+                row: "flex w-full mt-2 justify-between",
+                cell: "text-center text-sm relative p-0 bg-transparent flex-1",
+                day: "w-10 h-10 flex items-center justify-center rounded-full m-auto font-medium transition-all text-slate-600 bg-transparent",
+                day_selected: "bg-rose-100 text-rose-900 ring-2 ring-rose-400 ring-offset-2 ring-offset-white rounded-full font-bold",
+                day_today: "text-rose-500 font-bold bg-transparent",
                 day_outside: "text-slate-300 opacity-50",
               }}
             components={{
@@ -125,14 +126,6 @@ export default function CalendarPage() {
                           />
                         ))}
                       </div>
-                    )}
-                    {isSelected && (
-                        <motion.div
-                            layoutId="selectedDay"
-                            className="absolute inset-0 bg-rose-primary rounded-full -z-0"
-                            initial={false}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        />
                     )}
                   </CalendarDayButton>
                 );
