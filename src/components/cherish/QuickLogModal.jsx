@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { base44 } from '@/api/dbClient';
 import { useCreateMemory } from '@/hooks/useMemories';
 import { categoryConfig } from './CategoryIcon';
+import { toast } from 'sonner';
 
 export default function QuickLogModal({ open, onClose, category, onSave, defaultDate }) {
   const [date, setDate] = useState(defaultDate || new Date());
@@ -60,16 +61,22 @@ export default function QuickLogModal({ open, onClose, category, onSave, default
 
   const handleSave = async () => {
     setSaving(true);
-    await createMemory.mutateAsync({
-      category,
-      memory_date: format(date, 'yyyy-MM-dd'),
-      location: location || null,
-      notes: notes || null,
-      photo_url: photoData || null
-    });
-    setSaving(false);
-    onSave();
-    resetAndClose();
+    try {
+      await createMemory.mutateAsync({
+        category,
+        memory_date: format(date, 'yyyy-MM-dd'),
+        location: location || null,
+        notes: notes || null,
+        photo_url: photoData || null
+      });
+      onSave();
+      resetAndClose();
+    } catch (error) {
+      console.error("Failed to save memory", error);
+      toast.error("Failed to save memory");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const resetAndClose = () => {

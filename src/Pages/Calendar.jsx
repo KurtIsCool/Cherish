@@ -146,44 +146,42 @@ export default function CalendarPage() {
             </div>
           ) : (
             <AnimatePresence mode="wait">
-              {selectedMemories.length > 0 ? (
-                <motion.div
-                  key={selectedDate.toISOString()}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-3"
-                >
-                  {selectedMemories.map((memory) => (
-                    <MemoryCard
-                      key={memory.id}
-                      memory={{...memory, onClick: setViewingMemory}}
-                    />
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <p className="text-slate-400 mb-6">No memories on this day</p>
-
-                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-                    <h3 className="text-sm font-medium text-slate-600 mb-4">Add a memory for this day</h3>
-                    <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
-                        {categories.map((cat) => (
-                        <CategoryIcon
-                            key={cat}
-                            category={cat}
-                            size="md"
-                            onClick={() => setSelectedCategory(cat)}
-                        />
-                        ))}
-                    </div>
+              <motion.div
+                key={selectedDate.toISOString()}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                {selectedMemories.length > 0 ? (
+                  <div className="space-y-3">
+                    {selectedMemories.map((memory) => (
+                      <MemoryCard
+                        key={memory.id}
+                        memory={{...memory, onClick: setViewingMemory}}
+                      />
+                    ))}
                   </div>
-                </motion.div>
-              )}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-slate-400">No memories on this day</p>
+                  </div>
+                )}
+
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mt-4">
+                  <h3 className="text-sm font-medium text-slate-600 mb-4 text-center">Add a memory for this day</h3>
+                  <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
+                      {categories.map((cat) => (
+                      <CategoryIcon
+                          key={cat}
+                          category={cat}
+                          size="md"
+                          onClick={() => setSelectedCategory(cat)}
+                      />
+                      ))}
+                  </div>
+                </div>
+              </motion.div>
             </AnimatePresence>
           )}
         </div>
